@@ -1,2 +1,1 @@
-#Summer interns - smarte bygg
-
+# Summer interns - smarte bygg
