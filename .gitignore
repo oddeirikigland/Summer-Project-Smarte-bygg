@@ -3,6 +3,7 @@
 .vscode
 data
 __pycache__/
+config.ini
 
 ### JupyterNotebook ###
 .ipynb_checkpoints
