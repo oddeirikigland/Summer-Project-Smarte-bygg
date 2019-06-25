@@ -36,10 +36,11 @@ def amount_total(final_frame):
     amount_work = final_frame.groupby("Date")["Place"].count()
     amount_work = amount_work.to_frame()
     amount_work.columns = ["Freq"]
-    # 2019-01-04 had value 1, making an estimation of 20.
-    amount_work.loc["2019-01-04"] = 10
-    # 2019-01-07 had value 4400, making an estimation of 2200.
-    amount_work.loc["2019-01-07"] = 2200
+
+    # Dropping outlier data
+    amount_work = amount_work.drop(["2019-01-04"])
+    amount_work = amount_work.drop(["2019-01-07"])
+
     return amount_work
 
 
