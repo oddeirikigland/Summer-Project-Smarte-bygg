@@ -1,11 +1,17 @@
 import pandas as pd
+import sys
 import os
 
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
+from helpers import all_paths_in_dir
 
-def clean_kdr_data(kdr_files):
+
+def clean_kdr_data():
+    kdr_files = all_paths_in_dir("../../data/kdr_transactions", ".xlsx")
+
     all_frames = []
     for kdr in kdr_files:
-        kdr = pd.read_excel("../../data/KDR/" + kdr)
+        kdr = pd.read_excel(kdr)
         if len(kdr.columns) > 4:
             kdr = kdr.iloc[:, 0:4]
         kdr.columns = ["Date", "Place", "Menu", "Price"]
@@ -44,16 +50,8 @@ def amount_total(final_frame):
     return amount_work
 
 
-def find_kdr_files():
-    kdr_files = []
-    for filename in os.listdir("../../data/KDR"):
-        kdr_files.append(filename)
-    return kdr_files
-
-
 def main():
-    kdr_files = find_kdr_files()
-    final = clean_kdr_data(kdr_files)
+    final = clean_kdr_data()
     amount_location(final)
     amount_total(final)
 

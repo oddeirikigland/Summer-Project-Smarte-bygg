@@ -76,7 +76,7 @@ def split_dataframe(df):
 
 def plot_precipitation(precipitation):
     preci_plot = precipitation.plot(
-        y="value", title="Precipitation", legend=False
+        y="value", title="Precipitation", legend=False, figsize=(10, 8)
     )
     preci_plot.set_xlabel("Time")
     preci_plot.set_ylabel("Precipitation [mm]")
@@ -84,7 +84,9 @@ def plot_precipitation(precipitation):
 
 def plot_temperature(max_temp, min_temp):
     ax = max_temp.plot(y="value")
-    temp_plot = min_temp.plot(ax=ax, y="value", title="Temperatures")
+    temp_plot = min_temp.plot(
+        ax=ax, y="value", title="Temperatures", figsize=(10, 8)
+    )
 
     temp_plot.set_xlabel("Time")
     temp_plot.set_ylabel("Temperature [*C]")
