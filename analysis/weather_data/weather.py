@@ -3,10 +3,10 @@ import pandas as pd
 import configparser
 
 
-def get_weather_data(start_time, end_time):
+def get_weather_data(start_time, end_time, config_path):
     # Getting client id and secret from configparser file
     config = configparser.ConfigParser()
-    config.read("../../config.ini")
+    config.read(config_path)
 
     client_id = config["frost_client"]["client_id"]
     client_secret = config["frost_client"]["client_secret"]
@@ -59,7 +59,7 @@ def clean_data(data):
 
     # Convert the time value to datetime and set as index
     df2.index = pd.to_datetime(df2.pop("referenceTime"))
-
+    print(df2)
     # Only keeping measurements from 06:00
     return df2.at_time("06:00:00+00:00")
 
@@ -91,3 +91,12 @@ def plot_temperature(max_temp, min_temp):
     temp_plot.set_xlabel("Time")
     temp_plot.set_ylabel("Temperature [*C]")
     temp_plot.legend(["Max temp", "Min temp"])
+
+
+def main():
+    result = get_weather_data("2018-01-01", "2018-02-15", "../../config.ini")
+    print(result.head(20))
+
+
+if __name__ == "__main__":
+    main()
