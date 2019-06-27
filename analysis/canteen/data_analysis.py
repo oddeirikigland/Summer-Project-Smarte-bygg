@@ -6,8 +6,8 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
 from helpers import all_paths_in_dir
 
 
-def clean_kdr_data():
-    kdr_files = all_paths_in_dir("../../data/kdr_transactions", ".xlsx")
+def clean_kdr_data(path, file_type):
+    kdr_files = all_paths_in_dir(path, file_type)
 
     all_frames = []
     for kdr in kdr_files:
@@ -31,14 +31,16 @@ def clean_kdr_data():
     return final_frame
 
 
-def amount_location(final_frame):
+def amount_location(path, file_type):
+    final_frame = clean_kdr_data(path, file_type)
     amount_per_date = final_frame.groupby(["Date", "Place"])["Place"].count()
     amount_per_date = amount_per_date.to_frame()
     amount_per_date.columns = ["Freq"]
     return amount_per_date
 
 
-def amount_total(final_frame):
+def amount_total(path, file_type):
+    final_frame = clean_kdr_data(path, file_type)
     amount_work = final_frame.groupby("Date")["Place"].count()
     amount_work = amount_work.to_frame()
     amount_work.columns = ["Freq"]
@@ -51,9 +53,8 @@ def amount_total(final_frame):
 
 
 def main():
-    final = clean_kdr_data()
-    amount_location(final)
-    amount_total(final)
+    result = amount_total("../../data/kdr_transactions", ".xlsx")
+    print(result.head())
 
 
 if __name__ == "__main__":
