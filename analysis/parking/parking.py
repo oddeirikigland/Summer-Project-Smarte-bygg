@@ -59,7 +59,8 @@ def number_of_parked_cars(dataframe):
     return res
 
 
-def get_cars_parked(df):
+def get_cars_parked(path, file_type):
+    df = load_excel_files_into_df(path, file_type)
     dataframe = df.copy()
     dataframe = dataframe[dataframe["Avdeling"].str.contains("P1")]
     dataframe = dataframe.drop(["Avdeling", "Payment status"], axis=1)
@@ -67,8 +68,7 @@ def get_cars_parked(df):
 
 
 def main():
-    data = load_excel_files_into_df("../../data/parking_data", ".xlsx")
-    result = get_cars_parked(data)
+    result = get_cars_parked("../../data/parking_data", ".xlsx")
     print(result.head(20))
 
 
