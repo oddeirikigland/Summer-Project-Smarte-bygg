@@ -3,3 +3,5 @@ pandas
 black
 pre-commit
 xmljson=0.2.0
+sklearn
+numpy
