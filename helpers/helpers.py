@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 
 def all_paths_in_dir(path, file_type=".txt"):
@@ -20,3 +21,16 @@ def load_excel_files_into_df(file_path, file_type):
         df_list.append(pd.read_excel(elem))
     print("All files in " + file_path + " loaded!")
     return pd.concat(df_list)
+
+
+def split_dataframe(df, split_elements_list):
+    """
+    Splits a dataframe and returns two new dfs with the split_elements in the new df
+    :param df: dataframe to be splitted
+    :param split_elements_list: array of elements to remove from old df (x) and place into new (y)
+    :return: df and y (new df)
+    """
+    y = df.filter(split_elements_list)
+    x = df.drop(split_elements_list, axis=1)
+
+    return x, y
