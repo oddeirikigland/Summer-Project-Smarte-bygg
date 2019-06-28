@@ -113,7 +113,9 @@ def get_split_weather_data(start_time, end_time, config_path):
         merged, min_temp, left_index=True, right_index=True, how="inner"
     )
 
-    merged = merged.drop(["value", "elementId", "unit"], axis=1)
+    merged = merged.drop(
+        ["value", "elementId", "unit", "sourceId", "timeOffset"], axis=1
+    )
 
     merged = merged.drop_duplicates()
 

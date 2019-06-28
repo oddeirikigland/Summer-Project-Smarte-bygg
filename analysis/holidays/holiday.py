@@ -74,7 +74,7 @@ def create_dataframe(year):
     df["vacation2"] = vacations
 
     df.loc[df.vacation2, "vacation"] = True if True else False
-    df = df.drop(["vacation2"], axis=1)
+    df = df.drop(["vacation2", "week"], axis=1)
     return df
 
 
