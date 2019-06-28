@@ -59,7 +59,6 @@ def clean_data(data):
 
     # Convert the time value to datetime and set as index
     df2.index = pd.to_datetime(df2.pop("referenceTime"))
-    print(df2)
     # Only keeping measurements from 06:00
     return df2.at_time("06:00:00+00:00")
 
@@ -93,9 +92,37 @@ def plot_temperature(max_temp, min_temp):
     temp_plot.legend(["Max temp", "Min temp"])
 
 
+def get_split_weather_data(start_time, end_time, config_path):
+    result = get_weather_data(start_time, end_time, config_path)
+    precipitation, max_df, min_df = split_dataframe(result)
+    per = precipitation[["value"]]
+    per.columns = ["precipitation"]
+    merged = pd.merge(
+        per, result, left_index=True, right_index=True, how="inner"
+    )
+
+    max_temp = max_df[["value"]]
+    max_temp.columns = ["max_temp"]
+    merged = pd.merge(
+        merged, max_temp, left_index=True, right_index=True, how="inner"
+    )
+
+    min_temp = min_df[["value"]]
+    min_temp.columns = ["min_temp"]
+    merged = pd.merge(
+        merged, min_temp, left_index=True, right_index=True, how="inner"
+    )
+
+    merged = merged.drop(["value", "elementId", "unit"], axis=1)
+
+    merged = merged.drop_duplicates()
+
+    return merged
+
+
 def main():
     result = get_weather_data("2018-01-01", "2018-02-15", "../../config.ini")
-    print(result.head(20))
+    print(result)
 
 
 if __name__ == "__main__":
