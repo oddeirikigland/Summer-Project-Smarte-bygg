@@ -14,7 +14,7 @@ def get_weather_data(start_time, end_time, config_path):
     # Define endpoint and parameters
     endpoint = "https://frost.met.no/observations/v0.jsonld"
     parameters = {
-        "sources": "SN18815",
+        "sources": "SN18700",
         "elements": "sum(precipitation_amount PT12H), min(air_temperature PT12H), max(air_temperature PT12H)",
         "referencetime": start_time + "/" + end_time,
     }
