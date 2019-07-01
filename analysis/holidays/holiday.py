@@ -8,10 +8,9 @@ import numpy as np
 def get_holiday_for_year(year):
     response = requests.get("https://webapi.no/api/v1/holidays/" + str(year))
 
-    res = response.json()
-
     # Check if the request worked, print out any errors
     if response.status_code == 200:
+        res = response.json()
         data = res["data"]
         print("Data retrieved from web api!")
 
@@ -21,8 +20,8 @@ def get_holiday_for_year(year):
 
     else:
         print("Error! Returned status code %s" % response.status_code)
-        print("Message: %s" % res["error"]["message"])
-        print("Reason: %s" % res["error"]["reason"])
+        # print("Message: %s" % res["error"]["message"])
+        # print("Reason: %s" % res["error"]["reason"])
 
 
 def calendar_dates_for_year(for_year):

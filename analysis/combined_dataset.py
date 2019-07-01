@@ -33,16 +33,17 @@ def get_dataset():
 
     # Merge weather and holiday through left outer join
     merged = pd.merge(
-        weather, holiday, left_index=True, right_index=True, how="left"
+        canteen, weather, left_index=True, right_index=True, how="left"
     )
     merged = pd.merge(
-        canteen, merged, left_index=True, right_index=True, how="left"
+        merged, holiday, left_index=True, right_index=True, how="left"
     )
+
     merged["Canteen"] = merged.apply(
         lambda row: row["Canteen"] if not row["holiday"] else 0.0, axis=1
     )
 
-    return merged
+    return merged.dropna()
 
 
 def create_csv(filepath="../data/dataset.csv"):
@@ -56,7 +57,7 @@ def open_csv(filepath="../data/dataset.csv"):
 
 def main():
     result = get_dataset()
-    print(result.head())
+    print(result)
 
 
 if __name__ == "__main__":
