@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def all_paths_in_dir(path, file_type=".txt"):
@@ -34,3 +35,25 @@ def split_dataframe(df, split_elements_list):
     x = df.drop(split_elements_list, axis=1)
 
     return x, y
+
+
+def map_bool_to_int(df, col):
+    df[col] = df[col].map({True: 1.0, False: 0.0})
+
+
+def normalize_dataset(train_dataset, test_dataset):
+    train_stats = train_dataset.describe()
+    train_stats = train_stats.transpose()
+
+    def norm(x):
+        return (x - train_stats["mean"]) / train_stats["std"]
+
+    return norm(train_dataset), norm(test_dataset)
+
+
+def preprocess(raw_dataset):
+    df = raw_dataset.copy()
+    train, test = train_test_split(df, test_size=0.2)
+    train_dataset, train_labels = split_dataframe(train, ["Canteen"])
+    test_dataset, test_labels = split_dataframe(test, ["Canteen"])
+    return train_dataset, test_dataset, train_labels, test_labels
