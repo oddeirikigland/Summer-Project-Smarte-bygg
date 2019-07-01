@@ -13,27 +13,25 @@ def get_dataset():
 
     # Define date interval
     earliest_date = canteen.iloc[0].name
-    date_today = date.today()
+    latest_date = canteen.iloc[-1].name
 
     # Holiday data
     holidays = []
-    for i in range(int(earliest_date.year), int(date_today.year) + 1):
+    for i in range(int(earliest_date.year), int(latest_date.year) + 1):
         holidays.append(create_dataframe(i))
     holiday = pd.concat(holidays)
     holiday.index = pd.to_datetime(holiday.index).date
 
     # Weather data
     weather = get_split_weather_data(
-        str(earliest_date),
-        str(date_today.strftime("%Y-%m-%d")),
-        "../config.ini",
+        str(earliest_date), str(latest_date), "../config.ini"
     )
     weather.index = pd.to_datetime(weather.index).date
     weather.index.name = "date"
 
     # Merge weather and holiday through left outer join
     merged = pd.merge(
-        canteen, weather, left_index=True, right_index=True, how="left"
+        weather, canteen, left_index=True, right_index=True, how="left"
     )
     merged = pd.merge(
         merged, holiday, left_index=True, right_index=True, how="left"
@@ -56,8 +54,8 @@ def open_csv(filepath="../data/dataset.csv"):
 
 
 def main():
-    result = get_dataset()
-    print(result)
+    # result = get_dataset()
+    create_csv()
 
 
 if __name__ == "__main__":
