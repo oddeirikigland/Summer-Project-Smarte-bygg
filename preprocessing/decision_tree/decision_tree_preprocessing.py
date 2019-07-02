@@ -6,8 +6,6 @@ import pandas as pd
 
 
 def get_dataset_with_weekday(dataset):
-    # Ask Odd Eirik for this solution
-
     dataset["index1"] = dataset.index
     dataset["index1"] = pd.to_datetime(dataset["index1"])
     dataset["index1"] = dataset.apply(
@@ -20,14 +18,7 @@ def get_dataset_with_weekday(dataset):
 
 
 def main():
-    sys.path.append(
-        os.path.dirname(os.path.realpath(__file__)) + "/../../analysis"
-    )
-    from combined_dataset import open_csv
-
-    raw_dataset = open_csv("../../data/dataset.csv")
-    dataset = raw_dataset.copy()
-
+    dataset = pd.read_csv("../../data/dataset.csv", index_col="date")
     df = get_dataset_with_weekday(dataset)
     print(df)
 
