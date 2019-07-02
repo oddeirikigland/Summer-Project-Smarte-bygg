@@ -60,8 +60,9 @@ def open_csv(filepath="../data/dataset.csv"):
 
 
 def main():
-    # result = get_dataset()
     create_csv()
+    # result = get_dataset()
+    # print(result)
 
 
 if __name__ == "__main__":
