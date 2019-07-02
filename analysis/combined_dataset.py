@@ -47,6 +47,7 @@ def get_dataset():
 
     map_bool_to_int(merged, "holiday")
     map_bool_to_int(merged, "vacation")
+    map_bool_to_int(merged, "inneklemt")
     return merged.dropna()
 
 
