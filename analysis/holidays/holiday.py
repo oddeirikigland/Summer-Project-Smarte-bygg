@@ -70,10 +70,8 @@ def create_dataframe(year):
     df.loc[df.weekend, "holiday"] = True if True else False
     df = df.drop(["weekend"], axis=1)
     vacations = find_other_vacation_days(df)
-    df["vacation2"] = vacations
-
-    df.loc[df.vacation2, "vacation"] = True if True else False
-    df = df.drop(["vacation2", "week"], axis=1)
+    df["inneklemt"] = vacations
+    df = df.drop(["week"], axis=1)
     return df
 
 
