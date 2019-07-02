@@ -1,8 +1,12 @@
+import sys
+import os
 from weather_data.weather import get_split_weather_data
 from holidays.holiday import create_dataframe
 from parking_and_canteen import get_extended_canteen_data
-from datetime import date, datetime
 import pandas as pd
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../helpers")
+from helpers import map_bool_to_int
 
 
 def get_dataset():
@@ -41,6 +45,8 @@ def get_dataset():
         lambda row: row["Canteen"] if not row["holiday"] else 0.0, axis=1
     )
 
+    map_bool_to_int(merged, "holiday")
+    map_bool_to_int(merged, "vacation")
     return merged.dropna()
 
 
