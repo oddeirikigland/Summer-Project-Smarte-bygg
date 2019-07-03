@@ -11,7 +11,6 @@ def linear(df):
     dataframe = pd.DataFrame(df.index)
     dataframe["Canteen"] = df["Canteen"].values
     dataframe["date"] = pd.to_datetime(dataframe["date"])
-    dataframe["date"] = pd.to_datetime(dataframe["date"])
     dataframe["date"] = dataframe["date"].map(dt.datetime.toordinal)
 
     train, test = train_test_split(dataframe, test_size=0.2)
