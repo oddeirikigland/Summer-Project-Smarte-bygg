@@ -47,7 +47,7 @@ def get_dataset():
 
     map_bool_to_int(merged, "holiday")
     map_bool_to_int(merged, "vacation")
-    return merged.dropna()
+    return merged
 
 
 def create_csv(filepath="../data/dataset.csv"):
