@@ -5,12 +5,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.naive_bayes import GaussianNB
+from statsmodels.tsa.stattools import adfuller
 
 
-def test_stationarity(timeseries):
+def test_stationarity(dataframe, time_window):
+    timeseries = dataframe.iloc[:, 0]
     # Determing rolling statistics
-    rolmean = timeseries.rolling(365).mean()
-    rolstd = timeseries.rolling(365).std()
+    rolmean = timeseries.rolling(time_window).mean()
+    rolstd = timeseries.rolling(time_window).std()
 
     # Plot rolling statistics:
     plt.figure(figsize=(18, 9))
@@ -20,6 +22,22 @@ def test_stationarity(timeseries):
     plt.legend(loc="best")
     plt.title("Rolling Mean & Standard Deviation")
     plt.show(block=False)
+
+    # Perform Dickey-Fuller test:
+    print("Results of Dickey-Fuller Test:")
+    dftest = adfuller(timeseries, autolag="AIC")
+    dfoutput = pd.Series(
+        dftest[0:4],
+        index=[
+            "Test Statistic",
+            "p-value",
+            "#Lags Used",
+            "Number of Observations Used",
+        ],
+    )
+    for key, value in dftest[4].items():
+        dfoutput["Critical Value (%s)" % key] = value
+    print(dfoutput)
 
 
 def bin_data(dataset, bins):
