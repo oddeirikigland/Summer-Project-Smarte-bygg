@@ -9,6 +9,24 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../helpers")
 from helpers import map_bool_to_int
 
 
+def get_holiday_data(earliest_date, latest_date):
+    holidays = []
+    for i in range(int(earliest_date.year), int(latest_date.year) + 1):
+        holidays.append(create_dataframe(i))
+    holiday = pd.concat(holidays)
+    holiday.index = pd.to_datetime(holiday.index).date
+    return holiday
+
+
+def get_weather_data(earliest_date, latest_date):
+    weather = get_split_weather_data(
+        str(earliest_date), str(latest_date), "../config.ini"
+    )
+    weather.index = pd.to_datetime(weather.index).date
+    weather.index.name = "date"
+    return weather
+
+
 def get_dataset():
     # Canteen data
     canteen = get_extended_canteen_data()
@@ -20,18 +38,10 @@ def get_dataset():
     latest_date = canteen.iloc[-1].name
 
     # Holiday data
-    holidays = []
-    for i in range(int(earliest_date.year), int(latest_date.year) + 1):
-        holidays.append(create_dataframe(i))
-    holiday = pd.concat(holidays)
-    holiday.index = pd.to_datetime(holiday.index).date
+    holiday = get_holiday_data(earliest_date, latest_date)
 
     # Weather data
-    weather = get_split_weather_data(
-        str(earliest_date), str(latest_date), "../config.ini"
-    )
-    weather.index = pd.to_datetime(weather.index).date
-    weather.index.name = "date"
+    weather = get_weather_data(earliest_date, latest_date)
 
     # Merge weather and holiday through left outer join
     merged = pd.merge(
