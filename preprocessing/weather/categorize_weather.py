@@ -14,6 +14,7 @@ def categorize_temperature(df):
                           x < -10 || -2 < x < +2 || x > 20 (stay_home_temp)
     """
 
+    df = replace_temps_with_avg(df)
     # Setting labels and bin intervals
     temp_bins = [
         -20,
@@ -36,7 +37,7 @@ def categorize_temperature(df):
 
 def main():
     df = pd.read_csv("../../data/dataset.csv")
-    categorize_temperature(replace_temps_with_avg(df))
+    categorize_temperature(df)
 
 
 if __name__ == "__main__":

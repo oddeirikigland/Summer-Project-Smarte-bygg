@@ -6,13 +6,11 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
+import talos as ta
+import numpy as np
 
-sys.path.append(
-    os.path.dirname(os.path.realpath(__file__)) + "/../../analysis"
-)
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from combined_dataset import open_csv
-from helpers import normalize_dataset, preprocess
+from helpers import normalize_dataset, preprocess, split_dataframe
 
 print(tf.__version__)
 
@@ -25,15 +23,30 @@ class PrintDot(keras.callbacks.Callback):
         print(".", end="")
 
 
-def build_model(train_dataset):
+p = {
+    "first_neuron": [10, 40, 160, 640, 1280],
+    "hidden_neuron": [10, 40, 160],
+    # 'hidden_layers':[0,1,2,4],
+    # 'batch_size': [1000,5000,10000],
+    # 'optimizer': ['adam'],
+    # 'kernel_initializer': ['uniform'], #'normal'
+    # 'epochs': [50],
+    "dropout": [0.0, 0.25, 0.5],
+    "last_activation": ["sigmoid"],
+}
+
+
+def canteen_model_optimize_parameters(
+    train_dataset, train_labels, x_val, y_val, params
+):
     model = keras.Sequential(
         [
             layers.Dense(
-                64,
-                activation=tf.nn.relu,
-                input_shape=[len(train_dataset.keys())],
+                params["first_neuron"], input_dim=16, activation=tf.nn.relu
             ),
-            layers.Dense(64, activation=tf.nn.relu),
+            layers.Dropout(params["dropout"]),
+            layers.Dense(params["hidden_neuron"], activation=tf.nn.relu),
+            layers.Dropout(params["dropout"]),
             layers.Dense(1),
         ]
     )
@@ -44,7 +57,61 @@ def build_model(train_dataset):
         optimizer=optimizer,
         metrics=["mean_absolute_error", "mean_squared_error"],
     )
-    return model
+
+    # early_stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
+    EPOCHS = 1000
+    out = model.fit(
+        train_dataset,
+        train_labels,
+        validation_data=[x_val, y_val],
+        epochs=EPOCHS,
+        verbose=0,
+        # callbacks=[early_stop, PrintDot()],
+    )
+    return out, model
+
+
+def calculate_optimized_parameters(train_dataset, train_labels):
+    ta.Scan(
+        x=(np.array(train_dataset)),
+        y=(np.array(train_labels)),
+        model=canteen_model_optimize_parameters,
+        params=p,
+        grid_downsample=0.50,
+        dataset_name="canteen",
+        experiment_no="3",
+    )
+
+
+def canteen_model(train_dataset, train_labels):
+    model = keras.Sequential(
+        [
+            layers.Dense(
+                64, input_dim=train_dataset.shape[1], activation=tf.nn.relu
+            ),
+            layers.Dense(512, activation=tf.nn.relu),
+            layers.Dense(1),
+        ]
+    )
+    optimizer = tf.keras.optimizers.RMSprop(0.001)
+
+    model.compile(
+        loss="mean_squared_error",
+        optimizer=optimizer,
+        metrics=["mean_absolute_error", "mean_squared_error"],
+    )
+
+    early_stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=20)
+    EPOCHS = 1000
+    history = model.fit(
+        train_dataset,
+        train_labels,
+        epochs=EPOCHS,
+        validation_split=0.2,
+        verbose=0,
+        callbacks=[early_stop, PrintDot()],
+    )
+    return history, model
 
 
 def plot_training_set(train_dataset):
@@ -53,10 +120,16 @@ def plot_training_set(train_dataset):
             [
                 "Canteen",
                 "precipitation",
-                "max_temp",
-                "min_temp",
                 "holiday",
                 "vacation",
+                "inneklemt",
+                "canteen_week_ago",
+                "canteen_day_ago",
+                "preferred_work_temp",
+                "stay_home_temp",
+                "Monday",
+                "Tuesday",
+                "Friday",
             ]
         ],
         diag_kind="kde",
@@ -69,7 +142,7 @@ def plot_history(history):
 
     plt.figure()
     plt.xlabel("Epoch")
-    plt.ylabel("Mean Abs Error [MPG]")
+    plt.ylabel("Mean Abs Error [Canteen]")
     plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
     plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
     # plt.ylim([0,5])
@@ -77,7 +150,7 @@ def plot_history(history):
 
     plt.figure()
     plt.xlabel("Epoch")
-    plt.ylabel("Mean Square Error [$MPG^2$]")
+    plt.ylabel("Mean Square Error [$Canteen^2$]")
     plt.plot(hist["epoch"], hist["mean_squared_error"], label="Train Error")
     plt.plot(hist["epoch"], hist["val_mean_squared_error"], label="Val Error")
     # plt.ylim([0,20])
@@ -85,31 +158,25 @@ def plot_history(history):
     plt.show()
 
 
-def fit_model(model, normed_train_data, train_labels):
-    # The patience parameter is the amount of epochs to check for improvement
-    early_stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
-    EPOCHS = 1000
-    history = model.fit(
-        normed_train_data,
-        train_labels,
-        epochs=EPOCHS,
-        validation_split=0.2,
-        verbose=0,
-        callbacks=[early_stop, PrintDot()],
-    )
-    return history
-
-
-def main():
+def predict_canteen_values(df):
     train_dataset, test_dataset, train_labels, test_labels = preprocess(
-        open_csv("../data/dataset.csv")
+        pd.read_csv("../../data/ml_df.csv", index_col="date")
     )
     normed_train_data, normed_test_data = normalize_dataset(
         train_dataset, test_dataset
     )
-    model = build_model(train_dataset)
-    history = fit_model(model, normed_train_data, train_labels)
-    plot_history(history)
+    history, model = canteen_model(normed_train_data, train_labels)
+    predict_df, canteen_dates = split_dataframe(df, ["Canteen"])
+    _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
+    canteen_dates["feed_forward_pred"] = model.predict(normed_predict_df)
+    canteen_dates = canteen_dates.drop(["Canteen"], axis=1)
+    return canteen_dates
+
+
+def main():
+    test_prediction = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    res = predict_canteen_values(test_prediction)
+    print(res)
 
 
 if __name__ == "__main__":
