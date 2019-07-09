@@ -58,7 +58,7 @@ def catboost_predict_values(
     eval_dataset = Pool(test_dataset, test_labels)
 
     model = CatBoostRegressor(
-        iterations=200, learning_rate=0.05, depth=5, eval_metric="MAE"
+        iterations=2000, learning_rate=0.05, depth=5, eval_metric="MAE"
     )
     model.fit(train_dataset_combined, eval_set=eval_dataset)
 
