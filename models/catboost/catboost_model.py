@@ -47,7 +47,30 @@ def plot_result(test_labels, test_predictions):
     plt.show()
 
 
-def main():
+def catboost_predict_values(
+    df_to_predict, path_training_data="../../data/decision_tree_df.csv"
+):
+    raw_data = pd.read_csv(path_training_data, index_col="date")
+    df = preprocess_to_catboost(raw_data)
+    train_dataset, test_dataset, train_labels, test_labels = preprocess(df)
+
+    train_dataset_combined = Pool(train_dataset, train_labels)
+    eval_dataset = Pool(test_dataset, test_labels)
+
+    model = CatBoostRegressor(
+        iterations=200, learning_rate=0.05, depth=5, eval_metric="MAE"
+    )
+    model.fit(train_dataset_combined, eval_set=eval_dataset)
+
+    # Predict input
+    df = df_to_predict.copy()
+    prepros_df = preprocess_to_catboost(df)
+    prediction = model.predict(prepros_df)
+    df["predicted_value"] = prediction
+    return df.filter(["date", "predicted_value"])
+
+
+def predict_next_days():
     raw_data = pd.read_csv("../../data/decision_tree_df.csv", index_col="date")
     df = preprocess_to_catboost(raw_data)
     train_dataset, test_dataset, train_labels, test_labels = preprocess(df)
@@ -76,6 +99,10 @@ def main():
     print(test1)
     plt.plot(test1)
     plt.show()
+
+
+def main():
+    predict_next_days()
 
 
 if __name__ == "__main__":
