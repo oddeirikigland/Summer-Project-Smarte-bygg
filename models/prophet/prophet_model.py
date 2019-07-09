@@ -11,26 +11,52 @@ from helpers import save_model
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
+def prophet_predict_canteen_values(prediction_df, future=False):
+    df = pd.read_csv("../data/decision_tree_df.csv")
+    df = preprocess_dataframe(df)
+
+    # Splitting in test and train datasets
+    test_period = prediction_df.shape[
+        0
+    ]  # days we are predicting in the future
+    train = df.iloc[:-test_period]
+    # test = df.iloc[-test_period:]
+
+    model = create_prophet_model(train)
+    save_model(model, "prophet")
+    forecast = prediction(model, test_period)
+    filtered_forecast = forecast.filter(["ds", "yhat"])
+    renamed = filtered_forecast.rename(
+        columns={"ds": "date", "yhat": "predicted_value"}
+    )
+    renamed.index = pd.to_datetime(renamed.pop("date"))
+
+    return renamed.iloc[-test_period:]
+
+
 def preprocess_dataframe(df):
+    df.index = pd.to_datetime(df.pop("date"))
+    df = df.asfreq("D")
+    df = df.filter(["date", "Canteen"])
+    df.fillna(method="ffill", inplace=True)
+
     # Prophet needs data on a specific format
     df.reset_index(inplace=True)
     return df.rename(columns={"date": "ds", "Canteen": "y"})
 
 
-def prophet_prediction(train, test):
-    model = create_model(train)
-    save_model(model, "prophet")
+def prediction(model, test_period):
     # Create dataframe for prediction
-    future = model.make_future_dataframe(periods=test.shape[0])
+    future = model.make_future_dataframe(periods=test_period)
     future["floor"] = 0
     future["cap"] = 2100
 
     # Predict the future
     forecast = model.predict(future)
-    return forecast, model
+    return forecast
 
 
-def create_model(train):
+def create_prophet_model(train):
     train["floor"] = 0
     train["cap"] = 2100
 
@@ -66,3 +92,16 @@ def plot_forecast_and_components(model, forecast):
 
 def get_readable_forecast_info(forecast):
     return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]]
+
+
+def main():
+    dt_df = pd.read_csv("../../data/decision_tree_df.csv")
+    dt_df_test = dt_df.iloc[-8:]
+    dt_df_test.index = pd.to_datetime(dt_df_test.pop("date"))
+
+    canteen_prediction = prophet_predict_canteen_values(dt_df_test)
+    print(canteen_prediction)
+
+
+if __name__ == "__main__":
+    main()

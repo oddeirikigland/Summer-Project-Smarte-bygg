@@ -45,6 +45,31 @@ def test_stationarity(dataframe, time_window):
     print(dfoutput)
 
 
+def sts_predict_canteen_values(prediction_df):
+    df = pd.read_csv("../data/decision_tree_df.csv")
+    df.index = pd.to_datetime(df.pop("date"))
+    df = df.filter(["Canteen"])
+
+    test_period = prediction_df.shape[0]
+    train = df.iloc[:-test_period]
+    test = df.iloc[-test_period:]
+
+    # Binning the data
+    bins = [-1, 1, 200, 500, 1000, 1500, 1700, 1800, 1900, 10000]
+    binned_series, bin_means = bin_data(train, bins)
+
+    train_x, train_y = get_lagged_list(binned_series, test_period)
+
+    # Create model
+    model = create_sts_model(train_x, train_y)
+    # resulting_prediction = find_training_prediction(train_x, train_y, model, bin_means)
+    predictions, pred_class = find_prediction_forecast(
+        test, train_x, train_y, model, bin_means
+    )
+
+    return predictions
+
+
 def bin_data(dataset, bins):
     binned = np.digitize(dataset.iloc[:, 0], bins)
     bin_means = {}
@@ -71,7 +96,7 @@ def get_mean_from_class(prediction, bin_means):
     return bin_means[prediction[0]]
 
 
-def create_model(train_x, train_y):
+def create_sts_model(train_x, train_y):
     model = GaussianNB()
     model.fit(train_x, train_y)
     save_model(model, "simple_time_series")
@@ -131,3 +156,16 @@ def test_accuracy(pred_class, binned_test_series):
 
 def find_RMSE(dataset, prediction):
     return np.sqrt(np.mean((dataset.iloc[:, 0] - prediction) ** 2))
+
+
+def main():
+    dt_df = pd.read_csv("../../data/decision_tree_df.csv")
+    dt_df_test = dt_df.iloc[-8:]
+    dt_df_test.index = pd.to_datetime(dt_df_test.pop("date"))
+
+    canteen_prediction = sts_predict_canteen_values(dt_df_test)
+    print(canteen_prediction)
+
+
+if __name__ == "__main__":
+    main()
