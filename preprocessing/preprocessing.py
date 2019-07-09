@@ -1,9 +1,11 @@
 import pandas as pd
 
-from canteen_tail.canteen_tail import add_canteen_history
-from decision_tree.decision_tree_preprocessing import get_dataset_with_weekday
-from start_of_year.start_of_year import add_diff_from_start_year
-from weather.categorize_weather import categorize_temperature
+from preprocessing.canteen_tail.canteen_tail import add_canteen_history
+from preprocessing.decision_tree.decision_tree_preprocessing import (
+    get_dataset_with_weekday,
+)
+from preprocessing.start_of_year.start_of_year import add_diff_from_start_year
+from preprocessing.weather.categorize_weather import categorize_temperature
 
 
 def from_intervall_to_col(df, new_col, old_col):
@@ -25,7 +27,7 @@ def preprocess_data(df):
     df["canteen_day_ago"] = df["canteen_day_ago"].div(
         df["canteen_day_ago"].max()
     )
-    return df
+    return df.fillna(0)
 
 
 def preprocess_for_ml(df):

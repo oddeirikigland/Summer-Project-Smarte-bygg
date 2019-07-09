@@ -8,7 +8,10 @@ import json
 def get_weather_forecast():
     data = get_forecast_from_api()
     df = create_dataframe(data)
-    return merge_rows_by_date(df)
+    df = merge_rows_by_date(df)
+    return df.rename(
+        {"max_temperature": "max_temp", "min_temperature": "min_temp"}, axis=1
+    )
 
 
 def get_forecast_from_api():
