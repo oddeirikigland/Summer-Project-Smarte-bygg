@@ -18,7 +18,9 @@ from helpers import (
 )
 
 
-def build_model(train_dataset, train_labels, test_dataset, test_labels):
+def build_model(
+    train_dataset, train_labels, test_dataset, test_labels, local_testing
+):
     model = Sequential()
     model.add(
         LSTM(5, input_shape=(train_dataset.shape[1], train_dataset.shape[2]))
@@ -31,16 +33,25 @@ def build_model(train_dataset, train_labels, test_dataset, test_labels):
         optimizer=optimizer,
         metrics=["mean_absolute_error", "mean_squared_error"],
     )
-
-    history = model.fit(
-        train_dataset,
-        train_labels,
-        epochs=100,
-        batch_size=20,
-        validation_data=(test_dataset, test_labels),
-        verbose=0,
-        shuffle=False,
-    )
+    if local_testing:
+        history = model.fit(
+            train_dataset,
+            train_labels,
+            epochs=200,
+            batch_size=20,
+            validation_data=(test_dataset, test_labels),
+            verbose=0,
+            shuffle=False,
+        )
+    else:
+        history = model.fit(
+            train_dataset,
+            train_labels,
+            epochs=200,
+            batch_size=20,
+            verbose=0,
+            shuffle=False,
+        )
 
     return model, history
 
@@ -88,8 +99,7 @@ def create_train_dataset(supervised_scaled, test_period):
     return train_dataset, test_dataset, train_labels, test_labels
 
 
-def lstm(test_period):
-    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+def lstm(df, test_period, local_testing=False):
     df.fillna(0, inplace=True)
     df.dropna(inplace=True)
     df.inneklemt = df.inneklemt.astype(float)
@@ -101,7 +111,7 @@ def lstm(test_period):
     supervised["canteen_yesterday"] = supervised["Canteen"]
     supervised["canteen_yesterday"] = supervised["canteen_yesterday"].shift(1)
     supervised = supervised[1:]
-    supervised.columns = [
+    """supervised.columns = [
         "precipitation",
         "Canteen",
         "holiday",
@@ -118,8 +128,8 @@ def lstm(test_period):
         "Friday",
         "Saturday",
         "Sunday",
-        "canteen_yesterday",
-    ]
+        "canteen_yesterday"
+    ]"""
     supervised = supervised[
         [
             "Canteen",
@@ -172,14 +182,17 @@ def lstm(test_period):
     )
 
     model, history = build_model(
-        train_dataset, train_labels, test_dataset, test_labels
+        train_dataset, train_labels, test_dataset, test_labels, local_testing
     )
 
     return model, scaler, test_dataset, test_labels, history
 
 
-def predict_future_for_local_testing():
-    model, scaler, test_dataset, test_labels, history = lstm(175)
+def predict_future_for_local_testing(test_df):
+    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    model, scaler, test_dataset, test_labels, history = lstm(
+        df, int(test_df.shape[0]), local_testing=True
+    )
 
     # From tutorial https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
 
@@ -201,13 +214,15 @@ def predict_future_for_local_testing():
     mae = mean_absolute_error(inv_y, inv_yhat)
     print("Test Mean Squared Absolute Error: %.3f" % mae)
 
-    return history
+    return history, inv_yhat
 
 
-def predict_future_for_real_data(df):
-    model, scaler, _, _, _ = lstm(8)
-    test_dataset, test_labels = split_dataframe(df, ["Canteen"])
-    test_dataset = reshape_df(test_dataset)
+def predict_future_with_real_data(test_df):
+    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    df = df.append(test_df, sort=False)
+    model, scaler, test_dataset, test_labels, history = lstm(
+        df, test_df.shape[0]
+    )
 
     yhat = model.predict(test_dataset)
     test_dataset = test_dataset.reshape(
@@ -222,8 +237,8 @@ def predict_future_for_real_data(df):
 
 
 def main():
-    history = predict_future_for_local_testing()
-    plot_history(history)
+    df = pd.read_csv("../../data/test_data.csv", index_col="date")
+    predict_future_with_real_data(df)
 
 
 if __name__ == "__main__":
