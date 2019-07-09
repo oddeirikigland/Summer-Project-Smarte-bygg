@@ -11,3 +11,4 @@ talos
 seaborn
 matplotlib
 catboost
+nbstripout
