@@ -166,6 +166,7 @@ def predict_canteen_values(df):
         train_dataset, test_dataset
     )
     history, model = canteen_model(normed_train_data, train_labels)
+    model.save("feed_forward_model.h5")
     predict_df, canteen_dates = split_dataframe(df, ["Canteen"])
     _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
     canteen_dates["feed_forward_pred"] = model.predict(normed_predict_df)

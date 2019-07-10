@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import pickle
 from sklearn.model_selection import train_test_split
 
 
@@ -48,6 +49,17 @@ def normalize_dataset(train_dataset, test_dataset):
         return (x - train_stats["mean"]) / train_stats["std"]
 
     return norm(train_dataset), norm(test_dataset)
+
+
+def save_model(model, filename):
+    filename = filename + ".sav"
+    pickle.dump(model, open(filename, "wb"))
+
+
+def load_model(filename):
+    filename = filename + ".sav"
+    loaded_model = pickle.load(open(filename, "rb"))
+    return loaded_model
 
 
 def preprocess(raw_dataset):
