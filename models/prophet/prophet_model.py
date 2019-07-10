@@ -11,8 +11,25 @@ from helpers import save_model
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def prophet_predict_canteen_values(prediction_df, future=False):
-    df = pd.read_csv("../data/decision_tree_df.csv")
+def prophet(df):
+    df = preprocess_dataframe(df)
+
+    test_period = 8
+    train = df.iloc[:-test_period]
+
+    model = create_prophet_model(train)
+    forecast = prediction(model, test_period)
+    model.plot(forecast)
+    df_cv, df_p = evaluate_model(model)
+
+    print(
+        "The mean absolute error (MAE) for the Prophet model is {0:.2f}".format(
+            df_p["mae"].mean()
+        )
+    )
+
+
+def prophet_predict_canteen_values(df, prediction_df, future=False):
     df = preprocess_dataframe(df)
 
     # Splitting in test and train datasets
