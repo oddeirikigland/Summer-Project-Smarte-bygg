@@ -11,6 +11,7 @@ from tensorflow.python.keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.python.keras import Sequential, optimizers
 from tensorflow.python.keras.layers import LSTM, Dense
+from constants import ROOT_DIR
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
 from helpers import (
@@ -169,7 +170,7 @@ def load_existing_lstm(df, test_period):
 
 # Use when predicting with existing data in ml_df.csv, stores model if MAE is less than 75.
 def predict_lstm_with_testset(period):
-    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
     model, scaler, test_dataset, test_labels, history = train_lstm(
         df, period, local_testing=True
     )
@@ -201,7 +202,7 @@ def predict_lstm_with_testset(period):
 
 # Use when predicting for future with dataset that is NOT in ml_df.csv
 def predict_future_with_real_data(test_df):
-    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
 
     if "Canteen" not in test_df.columns:
         test_df["Canteen"] = np.nan
@@ -226,7 +227,7 @@ def predict_future_with_real_data(test_df):
 
 # Assumes canteen data is not given
 def predict_future_with_trained_model_file(test_dataset):
-    df = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
 
     if "Canteen" not in test_dataset.columns:
         test_dataset["Canteen"] = np.nan
@@ -247,7 +248,7 @@ def predict_future_with_trained_model_file(test_dataset):
 
 
 def main():
-    df = pd.read_csv("../../data/test_data.csv", index_col="date")
+    df = pd.read_csv("{}/data/test_data.csv".format(ROOT_DIR), index_col="date")
     predict_future_with_trained_model_file(df)
 
     # predict_future_with_real_data(df)

@@ -5,6 +5,7 @@ import pandas as pd
 import datetime as dt
 from sklearn.metrics import mean_absolute_error, r2_score
 from helpers.helpers import save_model
+from constants import ROOT_DIR
 
 
 def linear(df):
@@ -41,7 +42,9 @@ def linear(df):
 
 
 def main():
-    dataset = pd.read_csv("../../data/dataset.csv", index_col="date")
+    dataset = pd.read_csv(
+        "{}/data/dataset.csv".format(ROOT_DIR), index_col="date"
+    )
     linear(dataset)
 
 

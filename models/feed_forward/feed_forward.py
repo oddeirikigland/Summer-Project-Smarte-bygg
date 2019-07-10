@@ -11,6 +11,7 @@ import numpy as np
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
 from helpers import normalize_dataset, preprocess, split_dataframe
+from constants import ROOT_DIR
 
 print(tf.__version__)
 
@@ -160,7 +161,7 @@ def plot_history(history):
 
 def predict_canteen_values(df):
     train_dataset, test_dataset, train_labels, test_labels = preprocess(
-        pd.read_csv("../../data/ml_df.csv", index_col="date")
+        pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
     )
     normed_train_data, normed_test_data = normalize_dataset(
         train_dataset, test_dataset
@@ -175,7 +176,9 @@ def predict_canteen_values(df):
 
 
 def main():
-    test_prediction = pd.read_csv("../../data/ml_df.csv", index_col="date")
+    test_prediction = pd.read_csv(
+        "{}/data/ml_df.csv".format(ROOT_DIR), index_col="date"
+    )
     res = predict_canteen_values(test_prediction)
     print(res)
 

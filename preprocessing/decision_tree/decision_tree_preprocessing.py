@@ -1,8 +1,6 @@
-import sys
-import os
-from datetime import datetime, date
 import calendar
 import pandas as pd
+from constants import ROOT_DIR
 
 
 def get_dataset_with_weekday(dataset):
@@ -18,7 +16,9 @@ def get_dataset_with_weekday(dataset):
 
 
 def main():
-    dataset = pd.read_csv("../../data/dataset.csv", index_col="date")
+    dataset = pd.read_csv(
+        "{}/data/dataset.csv".format(ROOT_DIR), index_col="date"
+    )
     df = get_dataset_with_weekday(dataset)
     print(df)
 

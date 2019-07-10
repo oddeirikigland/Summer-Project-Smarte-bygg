@@ -1,4 +1,5 @@
 import pandas as pd
+from constants import ROOT_DIR
 
 
 def replace_temps_with_avg(df):
@@ -36,7 +37,7 @@ def categorize_temperature(df):
 
 
 def main():
-    df = pd.read_csv("../../data/dataset.csv")
+    df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR))
     categorize_temperature(df)
 
 

@@ -1,4 +1,5 @@
 import pandas as pd
+from constants import ROOT_DIR
 
 
 def is_leap_year(year):
@@ -27,7 +28,7 @@ def add_diff_from_start_year(dataframe):
 
 
 def main():
-    df = pd.read_csv("../../data/dataset.csv", index_col="date")
+    df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR), index_col="date")
     res = add_diff_from_start_year(df)
     print(res.head())
 

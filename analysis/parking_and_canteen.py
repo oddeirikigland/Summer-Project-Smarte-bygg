@@ -13,11 +13,16 @@ from scipy import stats
 from parking.parking import get_cars_parked
 from canteen.data_analysis import amount_total
 import seaborn as sns
+from constants import ROOT_DIR
 
 
 def load_and_filter():
-    cars_parked = get_cars_parked("../data/parking_data", ".xlsx")
-    canteen = amount_total("../data/kdr_transactions", ".xlsx")
+    cars_parked = get_cars_parked(
+        "{}/data/parking_data".format(ROOT_DIR), ".xlsx"
+    )
+    canteen = amount_total(
+        "{}/data/kdr_transactions".format(ROOT_DIR), ".xlsx"
+    )
     canteen.index = pd.to_datetime(canteen.index)
     canteen = canteen.rename(columns={"Freq": "Canteen"})
     return cars_parked, canteen

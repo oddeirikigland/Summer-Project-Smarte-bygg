@@ -15,6 +15,7 @@ from analysis.combined_dataset import get_holiday_data
 from analysis.weather_data.weather_forecast import get_weather_forecast
 from analysis.combined_dataset import create_csv
 from helpers import map_bool_to_int
+from constants import ROOT_DIR
 
 
 def from_intervall_to_col(df, new_col, old_col):
@@ -78,22 +79,27 @@ def save_dataframes_next_days():
     decision_tree_df = preprocess_data(df)
     ml_df = preprocess_for_ml(decision_tree_df.copy())
     decision_tree_df.to_csv(
-        index=True, path_or_buf="../data/decision_tree_df_next_days.csv"
+        index=True,
+        path_or_buf="{}/data/decision_tree_df_next_days.csv".format(ROOT_DIR),
     )
-    ml_df.to_csv(index=True, path_or_buf="../data/ml_df_next_days.csv")
+    ml_df.to_csv(
+        index=True, path_or_buf="{}/data/ml_df_next_days.csv".format(ROOT_DIR)
+    )
 
 
 def create_and_save_dataframes():
     create_csv()
-    dataframe = pd.read_csv("../data/dataset.csv", index_col="date")
+    dataframe = pd.read_csv(
+        "{}/data/dataset.csv".format(ROOT_DIR), index_col="date"
+    )
 
     df = dataframe.copy()
     decision_tree_df = preprocess_data(df)
     ml_df = preprocess_for_ml(decision_tree_df.copy())
     decision_tree_df.to_csv(
-        index=True, path_or_buf="../data/decision_tree_df.csv"
+        index=True, path_or_buf="{}/data/decision_tree_df.csv".format(ROOT_DIR)
     )
-    ml_df.to_csv(index=True, path_or_buf="../data/ml_df.csv")
+    ml_df.to_csv(index=True, path_or_buf="{}/data/ml_df.csv".format(ROOT_DIR))
     save_dataframes_next_days()
 
 
