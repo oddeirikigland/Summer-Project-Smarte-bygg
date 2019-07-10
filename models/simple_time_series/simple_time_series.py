@@ -3,9 +3,14 @@ import warnings
 warnings.filterwarnings("ignore")
 import pandas as pd
 import numpy as np
+import sys
+import os
 import matplotlib.pyplot as plt
 from sklearn.naive_bayes import GaussianNB
 from statsmodels.tsa.stattools import adfuller
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
+from helpers import save_model
 
 
 def test_stationarity(dataframe, time_window):
@@ -69,6 +74,7 @@ def get_mean_from_class(prediction, bin_means):
 def create_model(train_x, train_y):
     model = GaussianNB()
     model.fit(train_x, train_y)
+    save_model(model, "simple_time_series")
     return model
 
 

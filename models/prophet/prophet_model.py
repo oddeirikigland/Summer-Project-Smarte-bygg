@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
+import sys
+import os
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation, performance_metrics
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
+from helpers import save_model
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
@@ -14,7 +19,7 @@ def preprocess_dataframe(df):
 
 def prophet_prediction(train, test):
     model = create_model(train)
-
+    save_model(model, "prophet")
     # Create dataframe for prediction
     future = model.make_future_dataframe(periods=test.shape[0])
     future["floor"] = 0

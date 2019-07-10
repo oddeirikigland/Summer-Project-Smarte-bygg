@@ -3,11 +3,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import datetime as dt
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score
+from helpers.helpers import save_model
 
 
 def linear(df):
-    df = df[~df.holiday]
     dataframe = pd.DataFrame(df.index)
     dataframe["Canteen"] = df["Canteen"].values
     dataframe["date"] = pd.to_datetime(dataframe["date"])
@@ -31,7 +31,9 @@ def linear(df):
 
     y_pred = model.predict(x_test)
 
-    print("Mean squared error: %.2f" % mean_squared_error(y_test, y_pred))
+    save_model(model, "linear_regression")
+
+    print("Mean absolute error: %.2f" % mean_absolute_error(y_test, y_pred))
     # Explained variance score: 1 is perfect prediction
     print("Variance score: %.2f" % r2_score(y_test, y_pred))
 

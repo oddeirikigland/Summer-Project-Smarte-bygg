@@ -1,7 +1,9 @@
+import sys
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor, Pool
-from helpers.helpers import preprocess
+from helpers.helpers import preprocess, save_model
 
 
 def preprocess_to_catboost(raw_data):
@@ -85,6 +87,7 @@ def predict_next_days():
 
     print(model.get_best_iteration())
     print(model.get_best_score())
+    save_model(model, "catboost")
 
     test_predictions = model.predict(test_dataset).flatten()
 
