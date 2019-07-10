@@ -20,7 +20,6 @@ def load_excel_files_into_df(file_path, file_type):
     df_list = []
     for elem in parking_data:
         df_list.append(pd.read_excel(elem))
-    print("All files in " + file_path + " loaded!")
     return pd.concat(df_list)
 
 

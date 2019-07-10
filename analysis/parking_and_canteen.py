@@ -12,6 +12,7 @@ import math
 from scipy import stats
 from parking.parking import get_cars_parked
 from canteen.data_analysis import amount_total
+import seaborn as sns
 
 
 def load_and_filter():
@@ -51,6 +52,16 @@ def get_extended_canteen_data():
     combined_all = update_canteen_column(*load_and_filter())
     combined_all = combined_all.drop(["Number of cars"], axis=1)
     return combined_all
+
+
+def get_correlation_parking_canteen():
+    df = remove_outlier(*load_and_filter())
+    sns.pairplot(df[["Number of cars", "Canteen"]], diag_kind="kde")
+    print(
+        "Correlation between parked cars and people eating in canteen: {0:.2f}".format(
+            df["Canteen"].corr(df["Number of cars"])
+        )
+    )
 
 
 def main():
