@@ -1,25 +1,13 @@
-import os
-import sys
 from numpy import concatenate
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-import keras
-from keras import models
 from tensorflow.python.keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.python.keras import Sequential, optimizers
 from tensorflow.python.keras.layers import LSTM, Dense
 from constants import ROOT_DIR
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import (
-    normalize_dataset,
-    preprocess,
-    map_bool_to_int,
-    split_dataframe,
-    plot_history,
-)
+from helpers.helpers import split_dataframe, plot_history
 
 
 def build_model(
@@ -35,7 +23,7 @@ def build_model(
     model.compile(
         loss="mean_squared_error",
         optimizer=optimizer,
-        metrics=["mean_absolute_error", "mean_squared_error", "acc"],
+        metrics=["mean_absolute_error", "mean_squared_error"],
     )
 
     if local_testing:

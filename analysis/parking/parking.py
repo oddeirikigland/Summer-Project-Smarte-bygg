@@ -1,9 +1,5 @@
 import pandas as pd
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import load_excel_files_into_df
+from helpers.helpers import load_excel_files_into_df
 from constants import ROOT_DIR
 
 

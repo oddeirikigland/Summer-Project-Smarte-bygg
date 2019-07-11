@@ -1,20 +1,15 @@
 import pandas as pd
-import os
-import sys
 from datetime import datetime, timedelta
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../analysis")
-sys.path.append(
-    os.path.dirname(os.path.realpath(__file__)) + "/../preprocessing"
+from preprocessing.canteen_tail.canteen_tail import add_canteen_history
+from preprocessing.decision_tree.decision_tree_preprocessing import (
+    get_dataset_with_weekday,
 )
-from canteen_tail.canteen_tail import add_canteen_history
-from decision_tree.decision_tree_preprocessing import get_dataset_with_weekday
-from start_of_year.start_of_year import add_diff_from_start_year
-from weather.categorize_weather import categorize_temperature
+from preprocessing.start_of_year.start_of_year import add_diff_from_start_year
+from preprocessing.weather.categorize_weather import categorize_temperature
 from analysis.combined_dataset import get_holiday_data
 from analysis.weather_data.weather_forecast import get_weather_forecast
 from analysis.combined_dataset import create_csv
-from helpers import map_bool_to_int
+from helpers.helpers import map_bool_to_int
 from constants import ROOT_DIR
 
 

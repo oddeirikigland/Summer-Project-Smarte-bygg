@@ -1,12 +1,8 @@
-import sys
-import os
-from weather_data.weather import get_split_weather_data
-from holidays_data.holiday import create_dataframe
-from parking_and_canteen import get_extended_canteen_data
 import pandas as pd
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../helpers")
-from helpers import map_bool_to_int
+from analysis.weather_data.weather import get_split_weather_data
+from analysis.holidays_data.holiday import create_dataframe
+from analysis.parking_and_canteen import get_extended_canteen_data
+from helpers.helpers import map_bool_to_int
 from constants import ROOT_DIR
 
 

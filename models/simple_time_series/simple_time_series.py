@@ -1,16 +1,12 @@
 import warnings
-
-warnings.filterwarnings("ignore")
 import pandas as pd
 import numpy as np
-import sys
-import os
 import matplotlib.pyplot as plt
 from sklearn.naive_bayes import GaussianNB
 from statsmodels.tsa.stattools import adfuller
+from helpers.helpers import save_model
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import save_model
+warnings.filterwarnings("ignore")
 
 
 def simple_time_series(full_df, test_period, display_graphs=False):

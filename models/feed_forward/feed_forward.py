@@ -1,5 +1,3 @@
-import os
-import sys
 import pandas as pd
 import seaborn as sns
 import tensorflow as tf
@@ -8,9 +6,7 @@ from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import talos as ta
 import numpy as np
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import (
+from helpers.helpers import (
     normalize_dataset,
     preprocess,
     split_dataframe,

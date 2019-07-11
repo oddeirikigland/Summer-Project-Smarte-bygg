@@ -1,9 +1,5 @@
 import pandas as pd
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import all_paths_in_dir
+from helpers.helpers import all_paths_in_dir
 
 
 def clean_kdr_data(path, file_type):
