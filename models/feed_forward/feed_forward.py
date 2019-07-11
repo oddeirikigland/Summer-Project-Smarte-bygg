@@ -159,6 +159,7 @@ def main():
     test_prediction = pd.read_csv(
         "{}/data/ml_df.csv".format(ROOT_DIR), index_col="date"
     )
+    test_prediction = test_prediction.drop(["Canteen"], axis=1)
     res = predict_canteen_values(test_prediction)
     print(res)
 
