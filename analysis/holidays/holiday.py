@@ -20,8 +20,6 @@ def get_holiday_for_year(year):
 
     else:
         print("Error! Returned status code %s" % response.status_code)
-        # print("Message: %s" % res["error"]["message"])
-        # print("Reason: %s" % res["error"]["reason"])
 
 
 def calendar_dates_for_year(for_year):
