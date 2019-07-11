@@ -80,6 +80,7 @@ def save_dataframes_next_days():
     ml_df.to_csv(
         index=True, path_or_buf="{}/data/ml_df_next_days.csv".format(ROOT_DIR)
     )
+    return decision_tree_df, ml_df
 
 
 def create_and_save_dataframes():

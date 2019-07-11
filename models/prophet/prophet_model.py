@@ -24,15 +24,19 @@ def prophet(df):
     )
 
 
-def prophet_predict_canteen_values(df, prediction_df, future=False):
+def prophet_predict_canteen_values(df, prediction_df, future=True):
     df = preprocess_dataframe(df)
-
-    # Splitting in test and train datasets
     test_period = prediction_df.shape[
         0
     ]  # days we are predicting in the future
-    train = df.iloc[:-test_period]
-    # test = df.iloc[-test_period:]
+
+    if future is True:
+        date_today = datetime.now()
+        end_date = df["ds"].iloc[-1]
+        test_period = test_period + (date_today - end_date).days - 1
+        train = df
+    else:
+        train = df.iloc[:-test_period]
 
     model = create_prophet_model(train)
     save_model(model, "prophet")
@@ -43,7 +47,7 @@ def prophet_predict_canteen_values(df, prediction_df, future=False):
     )
     renamed.index = pd.to_datetime(renamed.pop("date"))
 
-    return renamed.iloc[-test_period:]
+    return renamed.iloc[-prediction_df.shape[0] :]
 
 
 def preprocess_dataframe(in_df):
