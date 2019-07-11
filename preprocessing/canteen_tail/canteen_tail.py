@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import timedelta
+from constants import ROOT_DIR
 
 
 def previous_day_to_col(df, row, days):
@@ -20,7 +21,7 @@ def add_canteen_history(dataframe):
 
 
 def main():
-    df = pd.read_csv("../../data/dataset.csv", index_col="date")
+    df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR), index_col="date")
     res = add_canteen_history(df)
     print(res.head())
 

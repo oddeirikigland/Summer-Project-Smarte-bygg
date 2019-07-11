@@ -7,6 +7,7 @@ import pandas as pd
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../helpers")
 from helpers import map_bool_to_int
+from constants import ROOT_DIR
 
 
 def get_holiday_data(earliest_date, latest_date):
@@ -20,7 +21,7 @@ def get_holiday_data(earliest_date, latest_date):
 
 def get_weather_data(earliest_date, latest_date):
     weather = get_split_weather_data(
-        str(earliest_date), str(latest_date), "../config.ini"
+        str(earliest_date), str(latest_date), "{}/config.ini".format(ROOT_DIR)
     )
     weather.index = pd.to_datetime(weather.index).date
     weather.index.name = "date"
@@ -61,12 +62,12 @@ def get_dataset():
     return merged.dropna()
 
 
-def create_csv(filepath="../data/dataset.csv"):
+def create_csv(filepath="{}/data/dataset.csv".format(ROOT_DIR)):
     result = get_dataset()
     result.to_csv(index=True, path_or_buf=filepath)
 
 
-def open_csv(filepath="../data/dataset.csv"):
+def open_csv(filepath="{}/data/dataset.csv".format(ROOT_DIR)):
     return pd.read_csv(filepath, index_col="date")
 
 

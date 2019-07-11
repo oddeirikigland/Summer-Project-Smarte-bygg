@@ -1,9 +1,8 @@
-import sys
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor, Pool
 from helpers.helpers import preprocess, save_model
+from constants import ROOT_DIR
 
 
 def preprocess_to_catboost(raw_data):
@@ -50,7 +49,8 @@ def plot_result(test_labels, test_predictions):
 
 
 def catboost_predict_values(
-    df_to_predict, path_training_data="../../data/decision_tree_df.csv"
+    df_to_predict,
+    path_training_data="{}/data/decision_tree_df.csv".format(ROOT_DIR),
 ):
     raw_data = pd.read_csv(path_training_data, index_col="date")
     df = preprocess_to_catboost(raw_data)
@@ -73,7 +73,9 @@ def catboost_predict_values(
 
 
 def predict_next_days():
-    raw_data = pd.read_csv("../../data/decision_tree_df.csv", index_col="date")
+    raw_data = pd.read_csv(
+        "{}/data/decision_tree_df.csv".format(ROOT_DIR), index_col="date"
+    )
     df = preprocess_to_catboost(raw_data)
     train_dataset, test_dataset, train_labels, test_labels = preprocess(df)
 
@@ -95,7 +97,8 @@ def predict_next_days():
 
     # Predict next days
     raw_data = pd.read_csv(
-        "../../data/decision_tree_df_next_days.csv", index_col="date"
+        "{}/data/decision_tree_df_next_days.csv".format(ROOT_DIR),
+        index_col="date",
     )
     processed_data = preprocess_to_catboost(raw_data)
     test1 = model.predict(processed_data).flatten()

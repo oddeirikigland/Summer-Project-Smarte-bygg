@@ -4,6 +4,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
 from helpers import load_excel_files_into_df
+from constants import ROOT_DIR
 
 
 # Sorts parking data for duplicate function
@@ -68,7 +69,7 @@ def get_cars_parked(path, file_type):
 
 
 def main():
-    result = get_cars_parked("../../data/parking_data", ".xlsx")
+    result = get_cars_parked("{}/data/parking_data".format(ROOT_DIR), ".xlsx")
     print(result.head(20))
 
 
