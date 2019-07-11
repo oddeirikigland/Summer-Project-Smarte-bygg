@@ -10,7 +10,12 @@ import talos as ta
 import numpy as np
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import normalize_dataset, preprocess, split_dataframe
+from helpers import (
+    normalize_dataset,
+    preprocess,
+    split_dataframe,
+    plot_history,
+)
 from constants import ROOT_DIR
 
 print(tf.__version__)
@@ -137,28 +142,6 @@ def plot_training_set(train_dataset):
     )
 
 
-def plot_history(history):
-    hist = pd.DataFrame(history.history)
-    hist["epoch"] = history.epoch
-
-    plt.figure()
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean Abs Error [Canteen]")
-    plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
-    plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
-    # plt.ylim([0,5])
-    plt.legend()
-
-    plt.figure()
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean Square Error [$Canteen^2$]")
-    plt.plot(hist["epoch"], hist["mean_squared_error"], label="Train Error")
-    plt.plot(hist["epoch"], hist["val_mean_squared_error"], label="Val Error")
-    # plt.ylim([0,20])
-    plt.legend()
-    plt.show()
-
-
 def predict_canteen_values(df):
     train_dataset, test_dataset, train_labels, test_labels = preprocess(
         pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
@@ -167,6 +150,7 @@ def predict_canteen_values(df):
         train_dataset, test_dataset
     )
     history, model = canteen_model(normed_train_data, train_labels)
+    plot_history(history)
     model.save("feed_forward_model.h5")
     predict_df, canteen_dates = split_dataframe(df, ["Canteen"])
     _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
