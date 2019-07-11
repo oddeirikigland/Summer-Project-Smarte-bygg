@@ -113,11 +113,3 @@ def plot_all_test_predictions(real_canteen, merged):
         ],
         loc="best",
     )
-
-
-def main():
-    print("Hei")
-
-
-if __name__ == "__main__":
-    main()
