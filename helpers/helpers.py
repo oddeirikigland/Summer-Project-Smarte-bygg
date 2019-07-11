@@ -86,15 +86,13 @@ def plot_history(history):
     plt.show()
 
 
-def plot_history_df(m):
-    hist = pd.DataFrame(m.history)
-    hist["epoch"] = m.epoch
+def plot_history_df(model):
 
     plt.figure()
     plt.xlabel("Epoch")
     plt.ylabel("Mean Abs Error [MPG]")
-    plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
-    plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
+    plt.plot(model["learn"]["MAE"], label="Train Error")
+    plt.plot(model["validation"]["MAE"], label="Val Error")
     # plt.ylim([0,5])
     plt.legend()
 
