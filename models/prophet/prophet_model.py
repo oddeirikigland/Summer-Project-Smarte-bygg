@@ -51,7 +51,8 @@ def prophet_predict_canteen_values(df, prediction_df, future=False):
     return renamed.iloc[-test_period:]
 
 
-def preprocess_dataframe(df):
+def preprocess_dataframe(in_df):
+    df = in_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
     df = df.asfreq("D")
     df = df.filter(["date", "Canteen"])

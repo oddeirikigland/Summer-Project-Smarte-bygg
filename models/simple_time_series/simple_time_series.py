@@ -13,44 +13,11 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
 from helpers import save_model
 
 
-def test_stationarity(dataframe, time_window):
-    timeseries = dataframe.iloc[:, 0]
-    # Determing rolling statistics
-    rolmean = timeseries.rolling(time_window).mean()
-    rolstd = timeseries.rolling(time_window).std()
-
-    # Plot rolling statistics:
-    plt.figure(figsize=(18, 9))
-    plt.plot(timeseries, color="blue", label="Original")
-    plt.plot(rolmean, color="red", label="Rolling Mean")
-    plt.plot(rolstd, color="black", label="Rolling Std")
-    plt.legend(loc="best")
-    plt.title("Rolling Mean & Standard Deviation")
-    plt.show(block=False)
-
-    # Perform Dickey-Fuller test:
-    print("Results of Dickey-Fuller Test:")
-    dftest = adfuller(timeseries, autolag="AIC")
-    dfoutput = pd.Series(
-        dftest[0:4],
-        index=[
-            "Test Statistic",
-            "p-value",
-            "#Lags Used",
-            "Number of Observations Used",
-        ],
-    )
-    for key, value in dftest[4].items():
-        dfoutput["Critical Value (%s)" % key] = value
-    print(dfoutput)
-
-
-def sts_predict_canteen_values(prediction_df):
-    df = pd.read_csv("../data/decision_tree_df.csv")
+def simple_time_series(full_df, test_period, display_graphs=False):
+    df = full_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
     df = df.filter(["Canteen"])
 
-    test_period = prediction_df.shape[0]
     train = df.iloc[:-test_period]
     test = df.iloc[-test_period:]
 
@@ -62,12 +29,28 @@ def sts_predict_canteen_values(prediction_df):
 
     # Create model
     model = create_sts_model(train_x, train_y)
-    # resulting_prediction = find_training_prediction(train_x, train_y, model, bin_means)
+    resulting_prediction = find_training_prediction(
+        train_x, train_y, model, bin_means
+    )
     predictions, pred_class = find_prediction_forecast(
         test, train_x, train_y, model, bin_means
     )
 
+    if display_graphs is True:
+        plt.figure(figsize=(14, 7))
+        plt.plot(train)
+        plt.plot(resulting_prediction)
+        print(
+            "The mean absolute error (MAE) for the Simple Time Series model is {0:.2f}".format(
+                find_RMSE(test, predictions)
+            )
+        )
+
     return predictions
+
+
+def sts_predict_canteen_values(in_df, prediction_df):
+    return simple_time_series(in_df, prediction_df.shape[0])
 
 
 def bin_data(dataset, bins):
@@ -104,6 +87,7 @@ def create_sts_model(train_x, train_y):
 
 
 def find_training_prediction(train_x, train_y, model, bin_means):
+    # Returns the prediction for the training set
     pred_insample = model.predict(train_x)
     pred_insample = pd.DataFrame(pred_insample, index=train_y.index)
 
@@ -116,6 +100,7 @@ def find_training_prediction(train_x, train_y, model, bin_means):
 
 
 def find_prediction_forecast(test, train_x, train_y, model, bin_means):
+    # Returns the prediction for a test set (out of sample forecast), both predicted numbers and classes
     prediction_frame = pd.DataFrame(
         np.nan, index=test.index, columns=range(train_x.shape[1])
     )
@@ -140,6 +125,38 @@ def find_prediction_forecast(test, train_x, train_y, model, bin_means):
             pass
 
     return predictions, pred_class.astype("int")
+
+
+def test_stationarity(dataframe, time_window):
+    timeseries = dataframe.iloc[:, 0]
+    # Determing rolling statistics
+    rolmean = timeseries.rolling(time_window).mean()
+    rolstd = timeseries.rolling(time_window).std()
+
+    # Plot rolling statistics:
+    plt.figure(figsize=(18, 9))
+    plt.plot(timeseries, color="blue", label="Original")
+    plt.plot(rolmean, color="red", label="Rolling Mean")
+    plt.plot(rolstd, color="black", label="Rolling Std")
+    plt.legend(loc="best")
+    plt.title("Rolling Mean & Standard Deviation")
+    plt.show(block=False)
+
+    # Perform Dickey-Fuller test:
+    print("Results of Dickey-Fuller Test:")
+    dftest = adfuller(timeseries, autolag="AIC")
+    dfoutput = pd.Series(
+        dftest[0:4],
+        index=[
+            "Test Statistic",
+            "p-value",
+            "#Lags Used",
+            "Number of Observations Used",
+        ],
+    )
+    for key, value in dftest[4].items():
+        dfoutput["Critical Value (%s)" % key] = value
+    print(dfoutput)
 
 
 def test_accuracy(pred_class, binned_test_series):
