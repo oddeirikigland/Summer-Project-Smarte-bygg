@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 import math
 from scipy import stats
-from parking.parking import get_cars_parked
-from canteen.data_analysis import amount_total
+from analysis.parking.parking import get_cars_parked
+from analysis.canteen.data_analysis import amount_total
 import seaborn as sns
 from constants import ROOT_DIR
 

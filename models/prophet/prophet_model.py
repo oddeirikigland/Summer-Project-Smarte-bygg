@@ -1,12 +1,7 @@
 import pandas as pd
-import numpy as np
-import sys
-import os
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation, performance_metrics
-
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../../helpers")
-from helpers import save_model
+from helpers.helpers import save_model
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
