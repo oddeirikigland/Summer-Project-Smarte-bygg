@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor, Pool
-from helpers.helpers import preprocess, save_model
+from helpers.helpers import preprocess, save_model, plot_history_df
 from constants import ROOT_DIR
 
 
@@ -62,7 +62,8 @@ def catboost_predict_values(
     model = CatBoostRegressor(
         iterations=2000, learning_rate=0.05, depth=5, eval_metric="MAE"
     )
-    model.fit(train_dataset_combined, eval_set=eval_dataset)
+    model.fit(train_dataset_combined, eval_set=eval_dataset, verbose=0)
+    save_model(model, "catboost")
 
     # Predict input
     df = df_to_predict.copy()
@@ -83,14 +84,15 @@ def predict_next_days():
     eval_dataset = Pool(test_dataset, test_labels)
 
     model = CatBoostRegressor(
-        iterations=1000, learning_rate=0.05, depth=5, eval_metric="MAE"
+        iterations=1000,
+        learning_rate=0.05,
+        depth=5,
+        eval_metric="MAE",
+        verbose=0,
     )
     model.fit(train_dataset_combined, eval_set=eval_dataset)
-
-    print(model.get_best_iteration())
-    print(model.get_best_score())
     save_model(model, "catboost")
-
+    plot_history_df(model.get_evals_result())
     test_predictions = model.predict(test_dataset).flatten()
 
     plot_result(test_labels, test_predictions)
@@ -102,13 +104,15 @@ def predict_next_days():
     )
     processed_data = preprocess_to_catboost(raw_data)
     test1 = model.predict(processed_data).flatten()
-    print(test1)
-    plt.plot(test1)
-    plt.show()
+
+    # plt.plot(test1)
+    # plt.show()
+    return model.get_evals_result(), test1
 
 
 def main():
-    predict_next_days()
+    model, _ = predict_next_days()
+    plot_history_df(model)
 
 
 if __name__ == "__main__":

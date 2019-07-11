@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pickle
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 def all_paths_in_dir(path, file_type=".txt"):
@@ -68,3 +69,31 @@ def preprocess(raw_dataset):
     train_dataset, train_labels = split_dataframe(train, ["Canteen"])
     test_dataset, test_labels = split_dataframe(test, ["Canteen"])
     return train_dataset, test_dataset, train_labels, test_labels
+
+
+def plot_history(history):
+    hist = pd.DataFrame(history.history)
+    hist["epoch"] = history.epoch
+
+    plt.figure()
+    plt.xlabel("Epoch")
+    plt.ylabel("Mean Abs Error [MPG]")
+    plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
+    plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
+    # plt.ylim([0,5])
+    plt.legend()
+
+    plt.show()
+
+
+def plot_history_df(model):
+
+    plt.figure()
+    plt.xlabel("Epoch")
+    plt.ylabel("Mean Abs Error [MPG]")
+    plt.plot(model["learn"]["MAE"], label="Train Error")
+    plt.plot(model["validation"]["MAE"], label="Val Error")
+    # plt.ylim([0,5])
+    plt.legend()
+
+    plt.show()

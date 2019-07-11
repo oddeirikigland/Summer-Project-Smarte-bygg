@@ -3,7 +3,6 @@ import sys
 from numpy import concatenate
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 import keras
 from keras import models
@@ -19,6 +18,7 @@ from helpers import (
     preprocess,
     map_bool_to_int,
     split_dataframe,
+    plot_history,
 )
 
 
@@ -35,7 +35,7 @@ def build_model(
     model.compile(
         loss="mean_squared_error",
         optimizer=optimizer,
-        metrics=["mean_absolute_error", "mean_squared_error"],
+        metrics=["mean_absolute_error", "mean_squared_error", "acc"],
     )
 
     if local_testing:
@@ -66,28 +66,6 @@ def reshape_df(np_array):
     np_array = np.asarray(np_array)
     np_array = np_array.reshape((np_array.shape[0], 1, np_array.shape[1]))
     return np_array
-
-
-def plot_history(history):
-    hist = pd.DataFrame(history.history)
-    hist["epoch"] = history.epoch
-
-    plt.figure()
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean Abs Error [MPG]")
-    plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
-    plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
-    # plt.ylim([0,5])
-    plt.legend()
-
-    plt.figure()
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean Square Error [$MPG^2$]")
-    plt.plot(hist["epoch"], hist["mean_squared_error"], label="Train Error")
-    plt.plot(hist["epoch"], hist["val_mean_squared_error"], label="Val Error")
-    # plt.ylim([0,20])
-    plt.legend()
-    plt.show()
 
 
 def create_train_dataset(supervised_scaled, test_period):
@@ -248,8 +226,9 @@ def predict_future_with_trained_model_file(test_dataset):
 
 
 def main():
-    df = pd.read_csv("{}/data/test_data.csv".format(ROOT_DIR), index_col="date")
-    predict_future_with_trained_model_file(df)
+    # df = pd.read_csv("{}/data/test_data.csv".format(ROOT_DIR), index_col="date")
+    hist, inv = predict_lstm_with_testset(175)
+    plot_history(hist)
 
     # predict_future_with_real_data(df)
     # predict_future_with_trained_model_file(df)
