@@ -10,6 +10,7 @@ warnings.filterwarnings("ignore")
 
 
 def simple_time_series(full_df, test_period, display_graphs=False):
+    # This method are meant for displaying some info about this series in the main jupyter file
     df = full_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
     df = df.filter(["Canteen"])
@@ -17,20 +18,7 @@ def simple_time_series(full_df, test_period, display_graphs=False):
     train = df.iloc[:-test_period]
     test = df.iloc[-test_period:]
 
-    # Binning the data
-    bins = [-1, 1, 200, 500, 1000, 1500, 1700, 1800, 1900, 10000]
-    binned_series, bin_means = bin_data(train, bins)
-
-    train_x, train_y = get_lagged_list(binned_series, test_period)
-
-    # Create model
-    model = create_sts_model(train_x, train_y)
-    resulting_prediction = find_training_prediction(
-        train_x, train_y, model, bin_means
-    )
-    predictions, pred_class = find_prediction_forecast(
-        test, train_x, train_y, model, bin_means
-    )
+    resulting_prediction, predictions = prediction(train, test)
 
     if display_graphs is True:
         plt.figure(figsize=(14, 7))
@@ -42,11 +30,42 @@ def simple_time_series(full_df, test_period, display_graphs=False):
             )
         )
 
+
+def sts_predict_canteen_values(full_df, prediction_df, future=True):
+    # Returns the predicted values for the prediction_df
+    df = full_df.copy()
+    df.index = pd.to_datetime(df.pop("date"))
+    df = df.filter(["Canteen"])
+    test_period = prediction_df.shape[0]
+
+    if future is True:
+        train = df
+        test = prediction_df.filter(["Canteen"])
+    else:
+        train = df.iloc[:-test_period]
+        test = df.iloc[-test_period:]
+
+    _, predictions = prediction(train, test)
     return predictions
 
 
-def sts_predict_canteen_values(in_df, prediction_df):
-    return simple_time_series(in_df, prediction_df.shape[0])
+def prediction(train, test):
+    # Binning the data
+    bins = [-1, 1, 200, 500, 1000, 1500, 1700, 1800, 1900, 10000]
+    binned_series, bin_means = bin_data(train, bins)
+
+    train_x, train_y = get_lagged_list(binned_series, test.shape[0])
+
+    # Create model
+    model = create_sts_model(train_x, train_y)
+    resulting_prediction = find_training_prediction(
+        train_x, train_y, model, bin_means
+    )
+    predictions, pred_class = find_prediction_forecast(
+        test, train_x, train_y, model, bin_means
+    )
+
+    return resulting_prediction, predictions
 
 
 def bin_data(dataset, bins):
