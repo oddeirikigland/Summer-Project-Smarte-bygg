@@ -50,9 +50,7 @@ def plot_result(test_labels, test_predictions):
 
 
 def catboost_predict_values(dt_df, df_to_predict):
-    if os.path.isfile(
-        "{}/models/catboost_model/catboost.sav".format(ROOT_DIR)
-    ):
+    if os.path.isfile("{}/models/saved_models/catboost.sav".format(ROOT_DIR)):
         model = load_model("catboost")
     else:
         model = catboost_create_model(dt_df)
