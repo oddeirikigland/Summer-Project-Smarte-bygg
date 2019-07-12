@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+from constants import ROOT_DIR
 
 
 def all_paths_in_dir(path, file_type=".txt"):
@@ -52,12 +53,12 @@ def normalize_dataset(train_dataset, test_dataset):
 
 
 def save_model(model, filename):
-    filename = filename + ".sav"
+    filename = "{}/models/saved_models/{}.sav".format(ROOT_DIR, filename)
     pickle.dump(model, open(filename, "wb"))
 
 
 def load_model(filename):
-    filename = filename + ".sav"
+    filename = "{}/models/saved_models/{}.sav".format(ROOT_DIR, filename)
     loaded_model = pickle.load(open(filename, "rb"))
     return loaded_model
 

@@ -25,12 +25,14 @@ warnings.filterwarnings("ignore")
 def load_datafiles():
     dt_df = pd.read_csv("{}/data/decision_tree_df.csv".format(ROOT_DIR))
     ml_df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR))
-
     return dt_df, ml_df
 
 
 def load_next_days():
-    return save_dataframes_next_days()
+    dt_next, ml_next = save_dataframes_next_days()
+    dt_next = dt_next.drop(["Canteen"], axis=1)
+    ml_next = ml_next.drop(["Canteen"], axis=1)
+    return dt_next, ml_next
 
 
 def get_correlation():
@@ -76,12 +78,12 @@ def create_dataframe_for_comparison(full_df, split_period):
     return real_canteen, df
 
 
-def create_predictions(dt_df, dt_df_test, ml_df_test, future=True):
+def create_predictions(dt_df, ml_df, dt_df_test, ml_df_test, future=True):
     sts = sts_predict_canteen_values(dt_df, dt_df_test, future)
     prophet = prophet_predict_canteen_values(dt_df, dt_df_test, future)
-    feed_forward = predict_canteen_values(ml_df_test)
+    feed_forward = predict_canteen_values(ml_df, ml_df_test)
     catboost = catboost_predict_values(dt_df, dt_df_test)
-    history, lstm = predict_future_with_trained_model_file(ml_df_test)
+    lstm = predict_future_with_trained_model_file(ml_df, ml_df_test)
 
     merged = prophet.copy().rename(columns={"predicted_value": "Prophet"})
     merged = pd.merge(merged, feed_forward, left_index=True, right_index=True)
@@ -93,21 +95,22 @@ def create_predictions(dt_df, dt_df_test, ml_df_test, future=True):
     return merged
 
 
-def plot_all_test_predictions(real_canteen, merged):
+def plot_all_test_predictions(merged, real_canteen=False):
     plt.figure(figsize=(16, 8))
-    plt.plot(real_canteen)
     plt.plot(merged)
+    if real_canteen:
+        plt.plot(real_canteen)
 
     plt.xlabel("Time")
     plt.ylabel("Number of people")
     plt.legend(
         [
-            "Real canteen values",
             "Prophet",
             "Feed Forward",
             "Catboost",
             "LSTM",
-            "Simple Time Series Model",
+            "Simple Time Series",
+            "Real canteen values",
         ],
         loc="best",
     )

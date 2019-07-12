@@ -8,6 +8,7 @@ from tensorflow.python.keras import Sequential, optimizers
 from tensorflow.python.keras.layers import LSTM, Dense
 from constants import ROOT_DIR
 from helpers.helpers import split_dataframe, plot_history
+import os
 
 
 def build_model(
@@ -129,14 +130,14 @@ def load_existing_lstm(df, test_period):
     _, test_dataset, _, _ = create_train_dataset(
         supervised_scaled, test_period
     )
-    model = load_model("lstm_model.h5")
+    model = load_model("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
 
     return model, scaler, test_dataset
 
 
 # Use when predicting with existing data in ml_df.csv, stores model if MAE is less than 75.
-def predict_lstm_with_testset(period):
-    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+def predict_lstm_with_testset(ml_df, period):
+    df = ml_df.copy()
     model, scaler, test_dataset, test_labels, history = train_lstm(
         df, period, local_testing=True
     )
@@ -160,15 +161,16 @@ def predict_lstm_with_testset(period):
     mae = mean_absolute_error(inv_y, inv_yhat)
     print("Test Mean Absolute Error: %.3f" % mae)
     if mae < 75:
-        model.save("lstm_model.h5")
+        model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
     rmse = np.sqrt(mean_squared_error(inv_y, inv_yhat))
     print("Test RMSE: %.3f" % rmse)
     return history, inv_yhat
 
 
 # Use when predicting for future with dataset that is NOT in ml_df.csv
-def predict_future_with_real_data(test_df):
-    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+def predict_future_with_real_data(ml_df, t_df):
+    df = ml_df.copy()
+    test_df = t_df.copy()
 
     if "Canteen" not in test_df.columns:
         test_df["Canteen"] = np.nan
@@ -192,16 +194,21 @@ def predict_future_with_real_data(test_df):
 
 
 # Assumes canteen data is not given
-def predict_future_with_trained_model_file(test_dataset):
-    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+def predict_future_with_trained_model_file(ml_df, dataset):
+    test_dataset = dataset.copy()
+    df = ml_df.copy()
 
     if "Canteen" not in test_dataset.columns:
         test_dataset["Canteen"] = np.nan
 
     df = df.append(test_dataset, sort=False)
 
-    model, scaler, test_dataset = load_existing_lstm(df, test_dataset.shape[0])
+    if not os.path.isfile(
+        "{}/models/saved_models/lstm_model.h5".format(ROOT_DIR)
+    ):
+        return predict_lstm_with_testset(ml_df, test_dataset.shape[0])[1]
 
+    model, scaler, test_dataset = load_existing_lstm(df, test_dataset.shape[0])
     yhat = model.predict(test_dataset)
     test_dataset = test_dataset.reshape(
         (test_dataset.shape[0], test_dataset.shape[2])

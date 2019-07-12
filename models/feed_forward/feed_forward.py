@@ -13,12 +13,13 @@ from helpers.helpers import (
     plot_history,
 )
 from constants import ROOT_DIR
+import warnings
 
-print(tf.__version__)
+warnings.filterwarnings("ignore")
 
 
-# Display training progress by printing a single dot for each completed epoch
 class PrintDot(keras.callbacks.Callback):
+    # Display training progress by printing a single dot for each completed epoch
     def on_epoch_end(self, epoch, logs):
         if epoch % 100 == 0:
             print("")
@@ -111,7 +112,7 @@ def canteen_model(train_dataset, train_labels):
         epochs=EPOCHS,
         validation_split=0.2,
         verbose=0,
-        callbacks=[early_stop, PrintDot()],
+        callbacks=[early_stop],
     )
     return history, model
 
@@ -138,17 +139,17 @@ def plot_training_set(train_dataset):
     )
 
 
-def predict_canteen_values(df):
-    train_dataset, test_dataset, train_labels, test_labels = preprocess(
-        pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
-    )
+def predict_canteen_values(dataset, to_predict):
+    ml_df = dataset.copy()
+    ml_df.index = pd.to_datetime(ml_df.pop("date"))
+    train_dataset, test_dataset, train_labels, test_labels = preprocess(ml_df)
     normed_train_data, normed_test_data = normalize_dataset(
         train_dataset, test_dataset
     )
     history, model = canteen_model(normed_train_data, train_labels)
-    plot_history(history)
-    model.save("feed_forward_model.h5")
-    predict_df = df.copy()
+    # plot_history(history)
+    model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
+    predict_df = to_predict.copy()
     _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
     predict_df["predicted_value"] = model.predict(normed_predict_df)
     predict_df = predict_df.filter(["date", "predicted_value"])
@@ -156,11 +157,9 @@ def predict_canteen_values(df):
 
 
 def main():
-    test_prediction = pd.read_csv(
-        "{}/data/ml_df.csv".format(ROOT_DIR), index_col="date"
-    )
-    test_prediction = test_prediction.drop(["Canteen"], axis=1)
-    res = predict_canteen_values(test_prediction)
+    ml_df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+    test_prediction = ml_df.drop(["Canteen"], axis=1)
+    res = predict_canteen_values(ml_df, test_prediction)
     print(res)
 
 
