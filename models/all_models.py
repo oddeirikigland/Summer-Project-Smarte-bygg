@@ -77,20 +77,18 @@ def create_dataframe_for_comparison(full_df, split_period):
 
 
 def create_predictions(dt_df, dt_df_test, ml_df_test, future=True):
-    sts = sts_predict_canteen_values(dt_df, dt_df_test)
+    sts = sts_predict_canteen_values(dt_df, dt_df_test, future)
     prophet = prophet_predict_canteen_values(dt_df, dt_df_test, future)
     feed_forward = predict_canteen_values(ml_df_test)
-    catboost = catboost_predict_values(
-        dt_df_test, "../data/decision_tree_df.csv"
-    )
-    # history, lstm = predict_future_with_trained_model_file(ml_df_test)
+    catboost = catboost_predict_values(dt_df, dt_df_test)
+    history, lstm = predict_future_with_trained_model_file(ml_df_test)
 
     merged = prophet.copy().rename(columns={"predicted_value": "Prophet"})
     merged = pd.merge(merged, feed_forward, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Feed Forward"})
     merged = pd.merge(merged, catboost, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Catboost"})
-    # merged["LSTM"] = lstm
+    merged["LSTM"] = lstm
     merged["STS"] = sts
     return merged
 
