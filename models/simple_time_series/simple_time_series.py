@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.naive_bayes import GaussianNB
 from statsmodels.tsa.stattools import adfuller
 from helpers.helpers import save_model
+from datetime import datetime, timedelta
 
 warnings.filterwarnings("ignore")
 
@@ -24,6 +25,7 @@ def simple_time_series(full_df, test_period, display_graphs=False):
         plt.figure(figsize=(14, 7))
         plt.plot(train)
         plt.plot(resulting_prediction)
+        plt.legend(["Real values", "Prediction"], loc="best")
         print(
             "The mean absolute error (MAE) for the Simple Time Series model is {0:.2f}".format(
                 find_RMSE(test, predictions)
@@ -39,14 +41,25 @@ def sts_predict_canteen_values(full_df, prediction_df, future=True):
     test_period = prediction_df.shape[0]
 
     if future is True:
+        date_today = datetime.now()
+        end_date = df.index[-1]
+        future_test_period = test_period + (date_today - end_date).days - 1
+
         train = df
-        test = prediction_df.filter(["Canteen"])
+        date_df = pd.DataFrame()
+        date_df["date"] = pd.date_range(
+            (end_date + timedelta(1)).date(),
+            periods=future_test_period,
+            freq="D",
+        )
+        date_df.index = pd.to_datetime(date_df.pop("date"))
+        test = date_df
     else:
         train = df.iloc[:-test_period]
         test = df.iloc[-test_period:]
 
     _, predictions = prediction(train, test)
-    return predictions
+    return predictions.iloc[-test_period:]
 
 
 def prediction(train, test):

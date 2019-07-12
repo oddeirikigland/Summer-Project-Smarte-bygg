@@ -78,7 +78,14 @@ def create_dataframe_for_comparison(full_df, split_period):
     return real_canteen, df
 
 
-def create_predictions(dt_df, ml_df, dt_df_test, ml_df_test, future=True):
+def create_predictions(
+    dt_df,
+    ml_df,
+    dt_df_test,
+    ml_df_test,
+    future=True,
+    real_canteen=pd.DataFrame,
+):
     sts = sts_predict_canteen_values(dt_df, dt_df_test, future)
     prophet = prophet_predict_canteen_values(dt_df, dt_df_test, future)
     feed_forward = predict_canteen_values(ml_df, ml_df_test)
@@ -92,14 +99,18 @@ def create_predictions(dt_df, ml_df, dt_df_test, ml_df_test, future=True):
     merged = merged.rename(columns={"predicted_value": "Catboost"})
     merged["LSTM"] = lstm
     merged["STS"] = sts
+    if not real_canteen.empty:
+        merged = pd.merge(
+            merged, real_canteen, left_index=True, right_index=True
+        )
+        merged = merged.rename(columns={"Canteen": "Real values"})
+
     return merged
 
 
-def plot_all_test_predictions(merged, real_canteen=False):
-    plt.figure(figsize=(16, 8))
+def plot_all_test_predictions(merged):
+    plt.figure(figsize=(12, 6))
     plt.plot(merged)
-    if real_canteen:
-        plt.plot(real_canteen)
 
     plt.xlabel("Time")
     plt.ylabel("Number of people")
