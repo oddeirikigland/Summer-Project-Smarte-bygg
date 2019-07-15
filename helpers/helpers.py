@@ -74,21 +74,14 @@ def preprocess(raw_dataset):
 def plot_history(history, epoch):
     hist = pd.DataFrame(history)
     hist["epoch"] = epoch
-
-    plt.figure()
     plt.xlabel("Epoch")
     plt.ylabel("Mean Abs Error [MPG]")
     plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
     plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
-    # plt.ylim([0,5])
     plt.legend()
-
-    plt.show()
 
 
 def plot_history_df(model):
-
-    plt.figure()
     plt.xlabel("Epoch")
     plt.ylabel("Mean Abs Error [MPG]")
     plt.plot(model["learn"]["MAE"], label="Train Error")
@@ -96,4 +89,37 @@ def plot_history_df(model):
     # plt.ylim([0,5])
     plt.legend()
 
+
+def plot_prediction(test_prediction):
+    plt.scatter(
+        list(test_prediction["Canteen"]),
+        list(test_prediction["prediction"]),
+        c="b",
+        label="Prediction",
+    )
+    plt.xlabel("True Values [Canteen]")
+    plt.ylabel("Predictions [Canteen]")
+    plt.axis("equal")
+    plt.axis("square")
+    plt.xlim([0, plt.xlim()[1]])
+    plt.ylim([0, plt.ylim()[1]])
+    plt.plot([-10000, 10000], [-10000, 10000], c="r", label="Actual")
+    plt.legend(loc="best")
+
+
+def plot_history_and_prediction_df(model, test_prediction):
+    plt.figure(figsize=(16, 6))
+    plt.subplot(121)
+    plot_history_df(model)
+    plt.subplot(122)
+    plot_prediction(test_prediction)
+    plt.show()
+
+
+def plot_history_and_prediction_ml(history, epoch, test_prediction):
+    plt.figure(figsize=(16, 6))
+    plt.subplot(121)
+    plot_history(history, epoch)
+    plt.subplot(122)
+    plot_prediction(test_prediction)
     plt.show()

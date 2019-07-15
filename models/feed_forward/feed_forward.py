@@ -9,8 +9,9 @@ import numpy as np
 from helpers.helpers import (
     normalize_dataset,
     preprocess,
-    split_dataframe,
+    save_model,
     plot_history,
+    load_model,
 )
 from constants import ROOT_DIR
 import warnings
@@ -147,8 +148,14 @@ def predict_canteen_values(dataset, to_predict):
         train_dataset, test_dataset
     )
     history, model = canteen_model(normed_train_data, train_labels)
-    # plot_history(history)
+
+    test_labels["prediction"] = model.predict(normed_test_data).flatten()
+    save_model(test_labels, "feed_forward_test_set_prediction")
+
     model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
+    save_model(history.history, "feed_forward_history".format(ROOT_DIR))
+    save_model(history.epoch, "feed_forward_epoch".format(ROOT_DIR))
+
     predict_df = to_predict.copy()
     _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
     predict_df["predicted_value"] = model.predict(normed_predict_df)
@@ -157,10 +164,15 @@ def predict_canteen_values(dataset, to_predict):
 
 
 def main():
-    ml_df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+    ml_df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR))
     test_prediction = ml_df.drop(["Canteen"], axis=1)
+    test_prediction.index = pd.to_datetime(test_prediction.pop("date"))
     res = predict_canteen_values(ml_df, test_prediction)
-    print(res)
+    print(res.head())
+
+    plot_history(
+        load_model("feed_forward_history"), load_model("feed_forward_epoch")
+    )
 
 
 if __name__ == "__main__":
