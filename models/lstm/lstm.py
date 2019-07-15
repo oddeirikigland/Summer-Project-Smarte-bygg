@@ -7,7 +7,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.python.keras import Sequential, optimizers
 from tensorflow.python.keras.layers import LSTM, Dense
 from constants import ROOT_DIR
-from helpers.helpers import split_dataframe, plot_history
+from helpers.helpers import split_dataframe, plot_history, save_model
 import os
 
 
@@ -162,6 +162,8 @@ def predict_lstm_with_testset(ml_df, period):
     print("Test Mean Absolute Error: %.3f" % mae)
     if mae < 75:
         model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
+        save_model(history.history, "lstm_history")
+        save_model(history.epoch, "lstm_epoch")
     rmse = np.sqrt(mean_squared_error(inv_y, inv_yhat))
     print("Test RMSE: %.3f" % rmse)
     return history, inv_yhat

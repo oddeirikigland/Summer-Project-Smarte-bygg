@@ -3,8 +3,10 @@ from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation, performance_metrics
 from helpers.helpers import save_model
 from datetime import datetime
+import warnings
 
 pd.options.mode.chained_assignment = None  # default='warn'
+warnings.filterwarnings("ignore")
 
 
 def prophet(df):

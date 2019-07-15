@@ -71,9 +71,9 @@ def preprocess(raw_dataset):
     return train_dataset, test_dataset, train_labels, test_labels
 
 
-def plot_history(history):
-    hist = pd.DataFrame(history.history)
-    hist["epoch"] = history.epoch
+def plot_history(history, epoch):
+    hist = pd.DataFrame(history)
+    hist["epoch"] = epoch
 
     plt.figure()
     plt.xlabel("Epoch")

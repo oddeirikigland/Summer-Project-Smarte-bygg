@@ -12,7 +12,6 @@ def get_holiday_for_year(year):
     if response.status_code == 200:
         res = response.json()
         data = res["data"]
-        print("Data retrieved from web api!")
 
         df = pd.read_json(json.dumps(data))
         df = df.set_index("date")
