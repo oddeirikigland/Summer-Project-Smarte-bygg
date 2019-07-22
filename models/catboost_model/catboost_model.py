@@ -25,30 +25,6 @@ def preprocess_to_catboost(raw_data):
     return df
 
 
-def plot_result(test_labels, test_predictions):
-    plt.scatter(
-        list(test_labels["Canteen"]),
-        test_predictions,
-        c="b",
-        label="prediction",
-    )
-    plt.xlabel("True Values [Canteen]")
-    plt.ylabel("Predictions [Canteen]")
-    plt.axis("equal")
-    plt.axis("square")
-    plt.xlim([0, plt.xlim()[1]])
-    plt.ylim([0, plt.ylim()[1]])
-    plt.plot([-10000, 10000], [-10000, 10000], c="r", label="actual")
-    plt.legend(loc="best")
-    plt.show()
-
-    error = test_predictions - list(test_labels["Canteen"])
-    plt.hist(error, bins=25)
-    plt.xlabel("Prediction Error [Canteen]")
-    plt.ylabel("Count")
-    plt.show()
-
-
 def catboost_predict_values(dt_df, df_to_predict):
     if os.path.isfile("{}/models/saved_models/catboost.sav".format(ROOT_DIR)):
         model = load_model("catboost")
@@ -77,6 +53,10 @@ def catboost_create_model(dt_df):
     )
     model.fit(train_dataset_combined, eval_set=eval_dataset, verbose=0)
     save_model(model, "catboost")
+    save_model(model.get_evals_result(), "catboost_evaluation_result")
+
+    test_labels["prediction"] = model.predict(test_dataset).flatten()
+    save_model(test_labels, "catboost_test_set_prediction")
     return model
 
 
@@ -85,9 +65,11 @@ def main():
     dt_df_test = dt_df.iloc[-8:]
     dt_df_test.index = pd.to_datetime(dt_df_test.pop("date"))
     dt_df_test = dt_df_test.drop(["Canteen"], axis=1)
-    model = catboost_create_model(dt_df)
+    catboost_create_model(dt_df)
     print(catboost_predict_values(dt_df, dt_df_test))
-    plot_history_df(model.get_evals_result())
+
+    model_result = load_model("catboost_evaluation_result")
+    plot_history_df(model_result)
 
 
 if __name__ == "__main__":
