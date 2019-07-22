@@ -160,7 +160,7 @@ def predict_lstm_with_testset(ml_df, period):
     # calculate Mean Squared error
     mae = mean_absolute_error(inv_y, inv_yhat)
     print("Test Mean Absolute Error: %.3f" % mae)
-    if mae < 75:
+    if mae < 40:
         model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
         save_model(history.history, "lstm_history")
         save_model(history.epoch, "lstm_epoch")
@@ -223,9 +223,9 @@ def predict_future_with_trained_model_file(ml_df, dataset):
 
 
 def main():
-    # df = pd.read_csv("{}/data/test_data.csv".format(ROOT_DIR), index_col="date")
-    hist, inv = predict_lstm_with_testset(175)
-    plot_history(hist)
+    pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+    # hist, inv = predict_lstm_with_testset(df, 8)
+    # plot_history(hist)
 
     # predict_future_with_real_data(df)
     # predict_future_with_trained_model_file(df)
