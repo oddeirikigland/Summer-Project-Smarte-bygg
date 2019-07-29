@@ -4,7 +4,8 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
-import talos as ta
+
+# import talos as ta
 import numpy as np
 from helpers.helpers import (
     normalize_dataset,
@@ -75,6 +76,8 @@ def canteen_model_optimize_parameters(
     return out, model
 
 
+"""
+
 def calculate_optimized_parameters(train_dataset, train_labels):
     ta.Scan(
         x=(np.array(train_dataset)),
@@ -85,6 +88,7 @@ def calculate_optimized_parameters(train_dataset, train_labels):
         dataset_name="canteen",
         experiment_no="3",
     )
+"""
 
 
 def canteen_model(train_dataset, train_labels):
