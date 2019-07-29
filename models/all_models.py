@@ -17,6 +17,7 @@ from models.lstm.lstm import predict_future_with_trained_model_file
 from preprocessing.preprocessing import save_dataframes_next_days
 from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR
+from main import main
 import warnings
 
 warnings.filterwarnings("ignore")
