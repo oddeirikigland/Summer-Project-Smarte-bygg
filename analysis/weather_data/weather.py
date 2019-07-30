@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import configparser
+import sys
 
 
 def get_weather_data(start_time, end_time, config_path):
@@ -19,8 +20,15 @@ def get_weather_data(start_time, end_time, config_path):
         "referencetime": start_time + "/" + end_time,
     }
 
-    # Issue an HTTP GET request and extract JSON data
-    r = requests.get(endpoint, parameters, auth=(client_id, client_secret))
+    try:
+        # Issue an HTTP GET request and extract JSON data
+        r = requests.get(endpoint, parameters, auth=(client_id, client_secret))
+
+    except requests.exceptions.RequestException as e:
+        print("Not possible to get the weather forecast from api.met.no")
+        print(e)
+        sys.exit()
+
     json = r.json()
 
     # Check if the request worked, print out any errors

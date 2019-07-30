@@ -12,9 +12,9 @@ warnings.filterwarnings("ignore")
 
 def simple_time_series(full_df, test_period, display_graphs=False):
     """
-
-    :param full_df:
-    :param test_period:
+    Displaying
+    :param full_df: full dataframe
+    :param test_period: Length/size of the test set
     :param display_graphs:
     :return:
     """

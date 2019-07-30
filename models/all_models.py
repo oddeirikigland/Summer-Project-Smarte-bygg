@@ -122,6 +122,11 @@ def create_predictions(
 
 
 def plot_all_test_predictions(merged):
+    """
+    Plotting the dataframe containing all prediction results
+    :param merged: merged dataframe
+    :return: None
+    """
     plt.figure(figsize=(12, 6))
     plt.plot(merged)
 

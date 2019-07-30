@@ -3,6 +3,7 @@ import pandas as pd
 import xml.etree.ElementTree as et
 from xmljson import BadgerFish
 import json
+import sys
 
 
 def get_weather_forecast():
@@ -15,14 +16,23 @@ def get_weather_forecast():
 
 
 def get_forecast_from_api():
-
+    """
+    Using api.met.no to get the weather forecast
+    :return data: data dictionary with relevant data from the api
+    """
     # Define endpoint and parameters
     # (lat and lon are for the weather station at Bygdøy used for weather forecast at Fornebu)
     endpoint = "https://api.met.no/weatherapi/locationforecast/1.9/"
     parameters = {"lat": 59.90, "lon": 10.69, "msl": 15}
 
-    # Issue an HTTP GET request
-    r = requests.get(endpoint, parameters)
+    try:
+        # Issue an HTTP GET request
+        r = requests.get(endpoint, parameters)
+
+    except requests.exceptions.RequestException as e:
+        print("Not possible to get the weather forecast from api.met.no")
+        print(e)
+        sys.exit()
 
     # Handling the XML response
     bf = BadgerFish()
@@ -38,7 +48,11 @@ def get_forecast_from_api():
 
 
 def create_dataframe(data):
-    # Creates DataFrame from api data dict. Collecting relevant information only, between 06:00 and 18:00.
+    """
+    Creates DataFrame from api data dict. Collecting relevant information only, between 06:00 and 18:00.
+    :param data: data dictionary from api
+    :return df: dataframe containing time, precipitation, max and min temperatures
+    """
 
     df_cols = [
         "referenceTime",
@@ -48,6 +62,7 @@ def create_dataframe(data):
     ]
     df = pd.DataFrame(columns=df_cols)
 
+    # Using the spesific format of the XML response stored in the dict. Only using data between 06:00 and 18:00
     for i in range(len(data)):
         if (
             "T06:00:00Z" in data[i]["@from"] and "T12:00:00Z" in data[i]["@to"]
@@ -73,7 +88,11 @@ def create_dataframe(data):
 
 
 def merge_rows_by_date(df):
-    # Merging the rows for the same date and summing precipitation, and finding max and min temperature by aggregation
+    """
+    Merging the rows for the same date and summing precipitation, and finding max and min temperature by aggregation
+    :param df: dataframe containing datetime, precipitation, max and min temp
+    :return: new dataframe with only one row per date. Aggregated numbers.
+    """
 
     d = {
         "precipitation": "sum",
