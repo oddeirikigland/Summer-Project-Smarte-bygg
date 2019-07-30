@@ -66,12 +66,18 @@ def get_extended_canteen_data():
 
 def get_correlation_parking_canteen():
     df = pd.read_csv("{}/data/raw_canteen_parking.csv".format(ROOT_DIR))
-    sns.pairplot(df[["Number of cars", "Canteen"]], diag_kind="kde")
     print(
         "Correlation between parked cars and people eating in canteen: {0:.2f}".format(
             df["Canteen"].corr(df["Number of cars"])
         )
     )
+    df = df.copy().rename(
+        columns={
+            "Number of cars": "Cars parked",
+            "Canteen": "Canteen visitors",
+        }
+    )
+    sns.pairplot(df[["Cars parked", "Canteen visitors"]], diag_kind="kde")
 
 
 def main():
