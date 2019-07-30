@@ -10,6 +10,11 @@ warnings.filterwarnings("ignore")
 
 
 def prophet(df):
+    """
+    Method to be used in all_models.ipynb for creating prediction and printing graph and MAE
+    :param df: input dataset
+    :return: None
+    """
     df = preprocess_dataframe(df)
 
     test_period = 8
