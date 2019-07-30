@@ -5,19 +5,32 @@ import matplotlib.pyplot as plt
 from models.prophet.prophet_model import (
     prophet_predict_canteen_values,
     prophet,
+    prophet_create_and_save_model,
 )
 from models.simple_time_series.simple_time_series import (
     sts_predict_canteen_values,
     simple_time_series,
+    create_simple_time_series_model,
 )
-from models.feed_forward.feed_forward import predict_canteen_values
-from models.linear_regression.linear_regression import linear
-from models.catboost_model.catboost_model import catboost_predict_values
-from models.lstm.lstm import predict_future_with_trained_model_file
+from models.feed_forward.feed_forward import (
+    predict_canteen_values,
+    feed_forward_create_model,
+)
+from models.linear_regression.linear_regression import (
+    linear,
+    linear_create_model,
+)
+from models.catboost_model.catboost_model import (
+    catboost_predict_values,
+    catboost_create_model,
+)
+from models.lstm.lstm import (
+    predict_future_with_trained_model_file,
+    lstm_create_model,
+)
 from preprocessing.preprocessing import save_dataframes_next_days
 from analysis.parking_and_canteen import get_correlation_parking_canteen
-from constants import ROOT_DIR
-from main import main
+from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -26,6 +39,8 @@ warnings.filterwarnings("ignore")
 def load_datafiles():
     dt_df = pd.read_csv("{}/data/decision_tree_df.csv".format(ROOT_DIR))
     ml_df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR))
+    dt_df.index = pd.to_datetime(dt_df.pop("date"))
+    ml_df.index = pd.to_datetime(ml_df.pop("date"))
     return dt_df, ml_df
 
 
@@ -66,7 +81,6 @@ def create_dataframe_for_comparison(full_df, split_period):
 
     """
     df = full_df.iloc[-split_period:]
-    df.index = pd.to_datetime(df.pop("date"))
 
     # Removes the Canteen data from the df and storing it to another data frame
     real_canteen_series = df.pop("Canteen")
@@ -143,3 +157,19 @@ def plot_all_test_predictions(merged):
         ],
         loc="best",
     )
+
+
+def create_and_save_models():
+    dt_df, ml_df = load_datafiles()
+    dt_df, ml_df = dt_df.copy(), ml_df.copy()
+    dt_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
+    ml_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
+
+    catboost_create_model(dt_df)
+    feed_forward_create_model(ml_df)
+    linear_create_model(
+        pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR), index_col="date")
+    )
+    lstm_create_model(ml_df)
+    prophet_create_and_save_model(dt_df)
+    create_simple_time_series_model(dt_df)

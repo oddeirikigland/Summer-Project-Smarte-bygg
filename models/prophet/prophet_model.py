@@ -49,7 +49,6 @@ def prophet_predict_canteen_values(df, prediction_df, future=True):
         train = df.iloc[:-test_period]
 
     model = create_prophet_model(train)
-    save_model(model, "prophet")
     forecast = prediction(model, test_period)
     filtered_forecast = forecast.filter(["ds", "yhat"])
     renamed = filtered_forecast.rename(
@@ -62,7 +61,6 @@ def prophet_predict_canteen_values(df, prediction_df, future=True):
 
 def preprocess_dataframe(in_df):
     df = in_df.copy()
-    df.index = pd.to_datetime(df.pop("date"))
     df = df.asfreq("D")
     df = df.filter(["date", "Canteen"])
     df.fillna(method="ffill", inplace=True)
@@ -100,7 +98,7 @@ def create_prophet_model(train):
     m.add_country_holidays(country_name="Norway")
     m.fit(train)
     # m.train_holiday_names
-
+    save_model(m, "prophet")
     return m
 
 
@@ -119,6 +117,11 @@ def plot_forecast_and_components(model, forecast):
 
 def get_readable_forecast_info(forecast):
     return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]]
+
+
+def prophet_create_and_save_model(dt_df):
+    dt_df = preprocess_dataframe(dt_df)
+    create_prophet_model(dt_df)
 
 
 def main():

@@ -1,7 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor, Pool
-from helpers.helpers import preprocess, save_model, load_model, plot_history_df
+from helpers.helpers import (
+    preprocess,
+    save_model,
+    load_model,
+    plot_history_df,
+    is_model_saved,
+)
 import os
 from constants import ROOT_DIR
 
@@ -26,7 +32,7 @@ def preprocess_to_catboost(raw_data):
 
 
 def catboost_predict_values(dt_df, df_to_predict):
-    if os.path.isfile("{}/models/saved_models/catboost.sav".format(ROOT_DIR)):
+    if is_model_saved("catboost.sav"):
         model = load_model("catboost")
     else:
         model = catboost_create_model(dt_df)
@@ -41,7 +47,6 @@ def catboost_predict_values(dt_df, df_to_predict):
 
 def catboost_create_model(dt_df):
     raw_data = dt_df.copy()
-    raw_data.index = pd.to_datetime(raw_data.pop("date"))
     df = preprocess_to_catboost(raw_data)
     train_dataset, test_dataset, train_labels, test_labels = preprocess(df)
 

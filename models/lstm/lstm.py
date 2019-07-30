@@ -6,14 +6,12 @@ from tensorflow.python.keras.models import load_model
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.python.keras import Sequential, optimizers
 from tensorflow.python.keras.layers import LSTM, Dense
-from constants import ROOT_DIR
+from constants import ROOT_DIR, DATA_SET_TEST_SIZE
 from helpers.helpers import split_dataframe, plot_history, save_model
 import os
 
 
-def build_model(
-    train_dataset, train_labels, test_dataset, test_labels, local_testing
-):
+def build_model(train_dataset, train_labels, local_testing):
     model = Sequential()
     model.add(
         LSTM(5, input_shape=(train_dataset.shape[1], train_dataset.shape[2]))
@@ -33,7 +31,7 @@ def build_model(
             train_labels,
             epochs=200,
             batch_size=20,
-            validation_data=(test_dataset, test_labels),
+            validation_split=0.2,
             verbose=2,
             shuffle=False,
         )
@@ -44,6 +42,7 @@ def build_model(
             train_labels,
             epochs=200,
             batch_size=20,
+            validation_split=0.2,
             verbose=0,
             shuffle=False,
         )
@@ -116,9 +115,7 @@ def train_lstm(df, test_period, local_testing=False):
         supervised_scaled, test_period
     )
 
-    model, history = build_model(
-        train_dataset, train_labels, test_dataset, test_labels, local_testing
-    )
+    model, history = build_model(train_dataset, train_labels, local_testing)
 
     return model, scaler, test_dataset, test_labels, history
 
@@ -136,10 +133,10 @@ def load_existing_lstm(df, test_period):
 
 
 # Use when predicting with existing data in ml_df.csv, stores model if MAE is less than 75.
-def predict_lstm_with_testset(ml_df, period):
+def predict_lstm_with_testset(ml_df, period, local_testing=True):
     df = ml_df.copy()
     model, scaler, test_dataset, test_labels, history = train_lstm(
-        df, period, local_testing=True
+        df, period, local_testing
     )
 
     # From tutorial https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
@@ -158,14 +155,11 @@ def predict_lstm_with_testset(ml_df, period):
     inv_y = inv_y[:, 0]
 
     # calculate Mean Squared error
-    mae = mean_absolute_error(inv_y, inv_yhat)
-    print("Test Mean Absolute Error: %.3f" % mae)
-    if mae < 40:
-        model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
-        save_model(history.history, "lstm_history")
-        save_model(history.epoch, "lstm_epoch")
-    rmse = np.sqrt(mean_squared_error(inv_y, inv_yhat))
-    print("Test RMSE: %.3f" % rmse)
+    # mae = mean_absolute_error(inv_y, inv_yhat)
+    # print("Test Mean Absolute Error: %.3f" % mae)
+    model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
+    save_model(history.history, "lstm_history")
+    save_model(history.epoch, "lstm_epoch")
     return history, inv_yhat
 
 
@@ -220,6 +214,12 @@ def predict_future_with_trained_model_file(ml_df, dataset):
     inv_yhat = inv_yhat[:, 0]
 
     return inv_yhat
+
+
+def lstm_create_model(ml_df):
+    predict_lstm_with_testset(
+        ml_df, int(ml_df.shape[0] * DATA_SET_TEST_SIZE), local_testing=False
+    )
 
 
 def main():

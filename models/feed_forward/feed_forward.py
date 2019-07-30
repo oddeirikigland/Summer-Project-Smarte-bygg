@@ -12,6 +12,7 @@ from helpers.helpers import (
     save_model,
     plot_history,
     load_model,
+    is_model_saved,
 )
 from constants import ROOT_DIR
 import warnings
@@ -140,9 +141,8 @@ def plot_training_set(train_dataset):
     )
 
 
-def predict_canteen_values(dataset, to_predict):
-    ml_df = dataset.copy()
-    ml_df.index = pd.to_datetime(ml_df.pop("date"))
+def feed_forward_create_model(ml_df):
+    ml_df = ml_df.copy()
     train_dataset, test_dataset, train_labels, test_labels = preprocess(ml_df)
     normed_train_data, normed_test_data = normalize_dataset(
         train_dataset, test_dataset
@@ -153,11 +153,24 @@ def predict_canteen_values(dataset, to_predict):
     save_model(test_labels, "feed_forward_test_set_prediction")
 
     model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
-    save_model(history.history, "feed_forward_history".format(ROOT_DIR))
-    save_model(history.epoch, "feed_forward_epoch".format(ROOT_DIR))
+    save_model(history.history, "feed_forward_history")
+    save_model(history.epoch, "feed_forward_epoch")
+    save_model(train_dataset, "feed_forward_train_dataset")
+    return model
 
+
+def predict_canteen_values(dataset, to_predict):
+    ml_df = dataset.copy()
+    if is_model_saved("feed_forward_model.h5"):
+        model = keras.models.load_model(
+            "{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR)
+        )
+    else:
+        model = feed_forward_create_model(ml_df)
     predict_df = to_predict.copy()
-    _, normed_predict_df = normalize_dataset(train_dataset, predict_df)
+    _, normed_predict_df = normalize_dataset(
+        load_model("feed_forward_train_dataset"), predict_df
+    )
     predict_df["predicted_value"] = model.predict(normed_predict_df)
     predict_df = predict_df.filter(["date", "predicted_value"])
     return predict_df
