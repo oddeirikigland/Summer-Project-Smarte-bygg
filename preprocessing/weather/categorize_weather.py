@@ -11,26 +11,27 @@ def replace_temps_with_avg(df):
 def categorize_temperature(df):
     """
     Using the following categories:
-        Avg temperature:  -10 <= x <= -2 || +2 <= x <= 20(preferred_work_temp),
-                          x < -10 || -2 < x < +2 || x > 20 (stay_home_temp)
+        Avg temperature:  x ∈ (−10,−2], x ∈ (2,20] (preferred_work_temp),
+                          x ∈ (−∞,−10], x ∈ (−2,2], x ∈ (20,∞) (stay_home_temp)
     """
 
     df = replace_temps_with_avg(df)
     # Setting labels and bin intervals
-    temp_bins = [
-        -20,
-        -10,
-        -2,
-        2,
-        20,
-        40,
-    ]  # The minimum avg temp is -12.75 and max is 27.8
+    temp_bins = [-20, -10, -2, 2, 20, 40]
 
+    # The minimum avg temp is -12.75 and max is 27.8.
+    # -20 and 40 are randomly chosen number smaller or bigger than these
+
+    # Creating bins from the avg_temp and adding random labels to be able to separate into stay_home and preferred_work
     df["avg_temp"] = pd.cut(
         df["avg_temp"], temp_bins, labels=["a", "b", "c", "d", "e"]
     )
+
+    # Creating dictionary and adding the relevant intervals to the two categories
     my_dict = dict.fromkeys(["a", "c", "e"], "stay_home_temp")
     my_dict.update(dict.fromkeys(["b", "d"], "preferred_work_temp"))
+
+    # Mapping the avg_temp values to the dict values (categories)
     df["avg_temp"] = df["avg_temp"].map(my_dict)
 
     return df

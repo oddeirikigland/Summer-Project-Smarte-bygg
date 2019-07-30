@@ -87,12 +87,24 @@ def create_predictions(
     future=True,
     real_canteen=pd.DataFrame,
 ):
+    """
+    Create predictions using all models (except linear regression) and merging the results into one dataframe
+    :param dt_df: decision tree dataframe
+    :param ml_df: machine learning dataframe
+    :param dt_df_test: test dataframe for decision tree
+    :param ml_df_test: test dataframe for machine learning
+    :param future: Optional Boolean. True if we want to predict the future (default), False if not
+    :param real_canteen: Optional dataframe. Contains real canteen values if not predicting the future
+    :return merged: Dataframe containing all predictions and real canteen values if provided
+    """
+    # Using the prediction models
     sts = sts_predict_canteen_values(dt_df, dt_df_test, future)
     prophet = prophet_predict_canteen_values(dt_df, dt_df_test, future)
     feed_forward = predict_canteen_values(ml_df, ml_df_test)
     catboost = catboost_predict_values(dt_df, dt_df_test)
     lstm = predict_future_with_trained_model_file(ml_df, ml_df_test)
 
+    # Merging and renaming all the prediction results
     merged = prophet.copy().rename(columns={"predicted_value": "Prophet"})
     merged = pd.merge(merged, feed_forward, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Feed Forward"})

@@ -11,6 +11,13 @@ warnings.filterwarnings("ignore")
 
 
 def simple_time_series(full_df, test_period, display_graphs=False):
+    """
+
+    :param full_df:
+    :param test_period:
+    :param display_graphs:
+    :return:
+    """
     # This method are meant for displaying some info about this series in the main jupyter file
     df = full_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
@@ -28,7 +35,7 @@ def simple_time_series(full_df, test_period, display_graphs=False):
         plt.legend(["Real values", "Prediction"], loc="best")
         print(
             "The mean absolute error (MAE) for the Simple Time Series model is {0:.2f}".format(
-                find_RMSE(test, predictions)
+                find_MAE(test, predictions)
             )
         )
 
@@ -199,7 +206,7 @@ def test_accuracy(pred_class, binned_test_series):
     return accuracy
 
 
-def find_RMSE(dataset, prediction):
+def find_MAE(dataset, prediction):
     return np.sqrt(np.mean((dataset.iloc[:, 0] - prediction) ** 2))
 
 
