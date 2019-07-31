@@ -35,11 +35,11 @@ def simple_time_series(full_df, test_period, display_graphs=True):
         plt.xlabel("Time")
         plt.ylabel("Number of people")
 
-    print(
-        "The mean absolute error (MAE) for the Simple Time Series model is {0:.0f} people".format(
-            find_MAE(test, predictions)
+        print(
+            "The mean absolute error (MAE) for the Simple Time Series model is {0:.0f} people".format(
+                find_MAE(test, predictions)
+            )
         )
-    )
 
 
 def sts_predict_canteen_values(full_df, prediction_df, future=True):
