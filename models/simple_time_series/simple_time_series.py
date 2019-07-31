@@ -63,7 +63,7 @@ def sts_predict_canteen_values(full_df, prediction_df, future=True):
         end_date = df.index[-1]
         future_test_period = test_period + (date_today - end_date).days - 1
 
-        # The whole dataframe is now the test set
+        # The whole dataframe is now the train set
         train = df
         # Creating a new dataframe containing all dates between end date and today + future days from prediction_df
         date_df = pd.DataFrame()

@@ -35,15 +35,24 @@ def prophet(df):
 
 
 def prophet_predict_canteen_values(df, prediction_df, future=True):
+    """
+    Returns the predicted values for the prediction_df
+    :param df: full dataframe
+    :param prediction_df: the prediction dataframe (where to predict number of people)
+    :param future: Optional Boolean. True if we want to predict the future (default), False if not
+    :return: The predicted values for the dates in prediction_df
+    """
     df = preprocess_dataframe(df)
     test_period = prediction_df.shape[
         0
-    ]  # days we are predicting in the future
+    ]  # number of days we are predicting (possibly in the future)
 
+    # The days between last row in dataset and today needs to be calculated
     if future is True:
         date_today = datetime.now()
         end_date = df["ds"].iloc[-1]
         test_period = test_period + (date_today - end_date).days - 1
+        # The whole dataframe is now the train set
         train = df
     else:
         train = df.iloc[:-test_period]
@@ -51,6 +60,7 @@ def prophet_predict_canteen_values(df, prediction_df, future=True):
     model = create_prophet_model(train)
     save_model(model, "prophet")
     forecast = prediction(model, test_period)
+    # Prophet returns alot as a forecast, but we are only interested in date and predicted number of people
     filtered_forecast = forecast.filter(["ds", "yhat"])
     renamed = filtered_forecast.rename(
         columns={"ds": "date", "yhat": "predicted_value"}
@@ -61,19 +71,26 @@ def prophet_predict_canteen_values(df, prediction_df, future=True):
 
 
 def preprocess_dataframe(in_df):
+    # Creating a copy, setting index as datetime and only keeping date and Canteen
     df = in_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
     df = df.asfreq("D")
     df = df.filter(["date", "Canteen"])
     df.fillna(method="ffill", inplace=True)
 
-    # Prophet needs data on a specific format
+    # Prophet needs data on a specific format: ds and y
     df.reset_index(inplace=True)
     return df.rename(columns={"date": "ds", "Canteen": "y"})
 
 
 def prediction(model, test_period):
-    # Create dataframe for prediction
+    """
+    Creating prediction.
+    :param model: trained model
+    :param test_period: number of days to predict
+    :return: prediction/forecast
+    """
+    # Create dataframe for prediction and setting max and min values for the data
     future = model.make_future_dataframe(periods=test_period)
     future["floor"] = 0
     future["cap"] = 2100
@@ -84,6 +101,7 @@ def prediction(model, test_period):
 
 
 def create_prophet_model(train):
+    # Create model based on training dataframe
     train["floor"] = 0
     train["cap"] = 2100
 
@@ -106,7 +124,7 @@ def create_prophet_model(train):
 
 def evaluate_model(model):
     df_cv = cross_validation(
-        model, initial="750 days", period="92 days", horizon="8 days"
+        model, initial="700 days", period="92 days", horizon="8 days"
     )
     df_p = performance_metrics(df_cv)
     return df_cv, df_p
