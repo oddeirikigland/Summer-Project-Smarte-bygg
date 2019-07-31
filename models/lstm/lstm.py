@@ -9,6 +9,9 @@ from tensorflow.python.keras.layers import LSTM, Dense
 from constants import ROOT_DIR, DATA_SET_TEST_SIZE
 from helpers.helpers import split_dataframe, plot_history, save_model
 import os
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 def build_model(train_dataset, train_labels, local_testing):

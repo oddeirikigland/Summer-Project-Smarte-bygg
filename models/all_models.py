@@ -67,6 +67,8 @@ def display_canteen_data():
     plt.figure(figsize=(14, 7))
     plt.plot(df)
     plt.title("Number of people at Telenor Oct 2016 - Feb 2019")
+    plt.xlabel("Time")
+    plt.ylabel("Number of people")
 
 
 def plot_linear(x, y, x_test, y_pred):
