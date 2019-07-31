@@ -29,6 +29,10 @@ from models.lstm.lstm import (
     lstm_create_model,
 )
 from preprocessing.preprocessing import save_dataframes_next_days
+from preprocessing.canteen_tail.canteen_tail import (
+    get_correlation_historic_canteen_data,
+    get_correlation_historic_canteen_no_weekend,
+)
 from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
