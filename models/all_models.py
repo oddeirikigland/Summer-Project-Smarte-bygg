@@ -71,7 +71,7 @@ def plot_linear(x, y, x_test, y_pred):
     plt.plot(x_test, y_pred, color="red", linewidth=1)
     plt.xlabel("Time")
     plt.ylabel("Number of people")
-    plt.legend(["Real values", "Linear regression trend"])
+    plt.legend(["Linear regression trend", "Real values"])
 
 
 def create_dataframe_for_comparison(full_df, split_period):
