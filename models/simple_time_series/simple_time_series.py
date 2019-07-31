@@ -43,17 +43,28 @@ def simple_time_series(full_df, test_period, display_graphs=True):
 
 
 def sts_predict_canteen_values(full_df, prediction_df, future=True):
-    # Returns the predicted values for the prediction_df
+    """
+    Returns the predicted values for the prediction_df
+    :param full_df: full dataframe
+    :param prediction_df: the prediction dataframe
+    :param future: Optional Boolean. True if we want to predict the future (default), False if not
+    :return: The predicted values for the dates in prediction_df
+    """
+
     df = full_df.copy()
     df = df.filter(["Canteen"])
     test_period = prediction_df.shape[0]
 
+    # The days between last row in dataset and today needs to be calculated
     if future is True:
+        # Finding days between end date of dataset and today
         date_today = datetime.now()
         end_date = df.index[-1]
         future_test_period = test_period + (date_today - end_date).days - 1
 
+        # The whole dataframe is now the train set
         train = df
+        # Creating a new dataframe containing all dates between end date and today + future days from prediction_df
         date_df = pd.DataFrame()
         date_df["date"] = pd.date_range(
             (end_date + timedelta(1)).date(),
@@ -61,27 +72,42 @@ def sts_predict_canteen_values(full_df, prediction_df, future=True):
             freq="D",
         )
         date_df.index = pd.to_datetime(date_df.pop("date"))
+        # Setting the new df as test set
         test = date_df
     else:
+        # If future = False, the test period is the last part of the full_df, train is everything up until this point
         train = df.iloc[:-test_period]
         test = df.iloc[-test_period:]
 
+    # Make prediction
     _, predictions = prediction(train, test)
     return predictions.iloc[-test_period:]
 
 
 def prediction(train, test):
-    # Binning the data
+    """
+    Make prediction. The code is based on the following article:
+    https://numbersandcode.com/another-simple-time-series-model-using-naive-bayes-for-forecasting
+    :param train: train dataframe
+    :param test: test dataframe
+    :return: prediction for training dataset, prediction for test dataset
+    """
+    # Binning the data: To bin the data, intervals are being assigned.
+    # Now, each continuous observation xt is replaced by an indicator xt=k, where k is the interval that xt falls in.
+    # The number of intervals was chosen arbitrarily.
     bins = [-1, 1, 200, 500, 1000, 1500, 1700, 1800, 1900, 10000]
     binned_series, bin_means = bin_data(train, bins)
 
+    # Getting the lagged lists for the regressor (train_x) and regressand (train_y)
     train_x, train_y = get_lagged_list(binned_series, test.shape[0])
 
     # Create model
     model = create_sts_model(train_x, train_y)
+    # Create prediction for train dataset
     resulting_prediction = find_training_prediction(
         train_x, train_y, model, bin_means
     )
+    # Create prediction for test dataset
     predictions, pred_class = find_prediction_forecast(
         test, train_x, train_y, model, bin_means
     )
@@ -90,6 +116,13 @@ def prediction(train, test):
 
 
 def bin_data(dataset, bins):
+    """
+    The data are binned and the mean of realizations xt in each interval is saved in a dictionary in order to
+    map the interval category back to actual realizations (bin_means).
+    :param dataset: the dataset (dataframe) that are to be binned
+    :param bins: list of numbers (= intervals between the numbers)
+    :return: a series of the binned data and the bin means
+    """
     binned = np.digitize(dataset.iloc[:, 0], bins)
     bin_means = {}
 
@@ -100,6 +133,12 @@ def bin_data(dataset, bins):
 
 
 def get_lagged_list(binned_series, lags):
+    """
+    To forecast future realizations, the classic approach of using lagged realizations of xt will be applied.
+    :param binned_series: the data in binned series
+    :param lags: number of lags to use. This will typically be the size of the test set
+    :return: two lagged lists: regressor (train_x) and regressands (train_y)
+    """
     lagged_list = []
     for s in range(lags):
         lagged_list.append(binned_series.shift(s))
@@ -111,11 +150,13 @@ def get_lagged_list(binned_series, lags):
     return train_x, train_y
 
 
-def get_mean_from_class(prediction, bin_means):
-    return bin_means[prediction[0]]
-
-
 def create_sts_model(train_x, train_y):
+    """
+    Create model using Gaussian Naive Bayes and save this
+    :param train_x: lagged list, regressor
+    :param train_y: lagged_list, regressand
+    :return: trained model
+    """
     model = GaussianNB()
     model.fit(train_x, train_y)
     save_model(model, "simple_time_series")
@@ -123,12 +164,21 @@ def create_sts_model(train_x, train_y):
 
 
 def find_training_prediction(train_x, train_y, model, bin_means):
-    # Returns the prediction for the training set
+    """
+    Returns the prediction for the training set.
+    :param train_x: lagged list, regressor
+    :param train_y: lagged_list, regressand
+    :param model: trained model
+    :param bin_means: the means from the bins
+    :return: prediction of train set
+    """
+    # Predicted bin values
     pred_insample = model.predict(train_x)
     pred_insample = pd.DataFrame(pred_insample, index=train_y.index)
 
     resulting_prediction = pd.Series(np.nan, index=train_y.index)
     for row in range(len(pred_insample)):
+        # The resulting prediction is equal to the means for the predicted bin
         mean_class = get_mean_from_class(pred_insample.values[row], bin_means)
         resulting_prediction.iloc[row] = mean_class[0]
 
@@ -136,7 +186,15 @@ def find_training_prediction(train_x, train_y, model, bin_means):
 
 
 def find_prediction_forecast(test, train_x, train_y, model, bin_means):
-    # Returns the prediction for a test set (out of sample forecast), both predicted numbers and classes
+    """
+    Returns the prediction for a test set (out of sample forecast), both predicted numbers and classes.
+    :param test: test dataframe
+    :param train_x: lagged list, regressor
+    :param train_y: lagged_list, regressand
+    :param model: trained model
+    :param bin_means: the means from the bins
+    :return: prediction of test dataset
+    """
     prediction_frame = pd.DataFrame(
         np.nan, index=test.index, columns=range(train_x.shape[1])
     )
@@ -146,6 +204,7 @@ def find_prediction_forecast(test, train_x, train_y, model, bin_means):
     prediction_frame.iloc[0, 1:] = train_x.iloc[-1, :-1].values
     prediction_frame.iloc[0, 0] = train_y.iloc[-1]
 
+    # Out-of-sample forecasts need to be calculated iteratively since lagged values are required.
     for i in range(len(test)):
         pred = model.predict(prediction_frame.iloc[i, :].values.reshape(1, -1))
         pred_class.iloc[i] = pred
@@ -163,7 +222,17 @@ def find_prediction_forecast(test, train_x, train_y, model, bin_means):
     return predictions, pred_class.astype("int")
 
 
+def get_mean_from_class(prediction, bin_means):
+    return bin_means[prediction[0]]
+
+
 def test_stationarity(dataframe, time_window):
+    """
+    Test if the timeseries in dataframe is stationary
+    :param dataframe:
+    :param time_window:
+    :return:
+    """
     timeseries = dataframe.iloc[:, 0]
     # Determing rolling statistics
     rolmean = timeseries.rolling(time_window).mean()
