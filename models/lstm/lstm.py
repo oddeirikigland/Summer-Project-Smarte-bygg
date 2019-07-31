@@ -178,6 +178,12 @@ def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
 
     # From tutorial https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
     yhat = model.predict(test_dataset)
+
+    pred_df = pd.DataFrame(
+        {"prediction": yhat.flatten(), "Canteen": test_labels.flatten()}
+    )
+    save_model(pred_df, "lstm_test_set_prediction")
+
     test_dataset = test_dataset.reshape(
         (test_dataset.shape[0], test_dataset.shape[2])
     )
