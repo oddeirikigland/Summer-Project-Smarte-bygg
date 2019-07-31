@@ -27,20 +27,15 @@ def linear_create_model(df):
 
 def linear(df):
     model, x, y, test = linear_create_model(df)
-    r_sq = model.score(x, y)  # check score
-
-    print("coefficient of determination:", r_sq)
-    print("intercept:", model.intercept_)
-    print("slope:", model.coef_)
+    # Changing ordinal dates to regular dates
+    x = [dt.datetime.fromordinal(*el).date() for el in x]
 
     y_test = np.asarray(test["Canteen"])
     x_test = np.asarray(test["date"]).reshape((-1, 1))
 
     y_pred = model.predict(x_test)
 
-    print("Mean absolute error: %.2f" % mean_absolute_error(y_test, y_pred))
-    # Explained variance score: 1 is perfect prediction
-    print("Variance score: %.2f" % r2_score(y_test, y_pred))
+    print("Mean absolute error: %.0f" % mean_absolute_error(y_test, y_pred))
 
     return x, y, y_pred, x_test, y_test
 
