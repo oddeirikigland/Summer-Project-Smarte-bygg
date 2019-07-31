@@ -3,9 +3,6 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-import matplotlib.pyplot as plt
-import talos as ta
-import numpy as np
 from helpers.helpers import (
     normalize_dataset,
     preprocess,
@@ -26,66 +23,6 @@ class PrintDot(keras.callbacks.Callback):
         if epoch % 100 == 0:
             print("")
         print(".", end="")
-
-
-p = {
-    "first_neuron": [10, 40, 160, 640, 1280],
-    "hidden_neuron": [10, 40, 160],
-    # 'hidden_layers':[0,1,2,4],
-    # 'batch_size': [1000,5000,10000],
-    # 'optimizer': ['adam'],
-    # 'kernel_initializer': ['uniform'], #'normal'
-    # 'epochs': [50],
-    "dropout": [0.0, 0.25, 0.5],
-    "last_activation": ["sigmoid"],
-}
-
-
-def canteen_model_optimize_parameters(
-    train_dataset, train_labels, x_val, y_val, params
-):
-    model = keras.Sequential(
-        [
-            layers.Dense(
-                params["first_neuron"], input_dim=16, activation=tf.nn.relu
-            ),
-            layers.Dropout(params["dropout"]),
-            layers.Dense(params["hidden_neuron"], activation=tf.nn.relu),
-            layers.Dropout(params["dropout"]),
-            layers.Dense(1),
-        ]
-    )
-    optimizer = tf.keras.optimizers.RMSprop(0.001)
-
-    model.compile(
-        loss="mean_squared_error",
-        optimizer=optimizer,
-        metrics=["mean_absolute_error", "mean_squared_error"],
-    )
-
-    # early_stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10)
-    EPOCHS = 1000
-    out = model.fit(
-        train_dataset,
-        train_labels,
-        validation_data=[x_val, y_val],
-        epochs=EPOCHS,
-        verbose=0,
-        # callbacks=[early_stop, PrintDot()],
-    )
-    return out, model
-
-
-def calculate_optimized_parameters(train_dataset, train_labels):
-    ta.Scan(
-        x=(np.array(train_dataset)),
-        y=(np.array(train_labels)),
-        model=canteen_model_optimize_parameters,
-        params=p,
-        grid_downsample=0.50,
-        dataset_name="canteen",
-        experiment_no="3",
-    )
 
 
 def canteen_model(train_dataset, train_labels):
