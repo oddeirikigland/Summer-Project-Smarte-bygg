@@ -10,8 +10,14 @@ from datetime import datetime, timedelta
 warnings.filterwarnings("ignore")
 
 
-def simple_time_series(full_df, test_period, display_graphs=False):
-    # This method are meant for displaying some info about this series in the main jupyter file
+def simple_time_series(full_df, test_period, display_graphs=True):
+    """
+    Creating prediction and displaying graph and MAE. To be used in all_models.
+    :param full_df: full dataframe
+    :param test_period: Length/size of the test set
+    :param display_graphs: Display graph if only if True
+    :return: None
+    """
     df = full_df.copy()
     df.index = pd.to_datetime(df.pop("date"))
     df = df.filter(["Canteen"])
@@ -26,11 +32,14 @@ def simple_time_series(full_df, test_period, display_graphs=False):
         plt.plot(train)
         plt.plot(resulting_prediction)
         plt.legend(["Real values", "Prediction"], loc="best")
-        print(
-            "The mean absolute error (MAE) for the Simple Time Series model is {0:.2f}".format(
-                find_RMSE(test, predictions)
-            )
+        plt.xlabel("Time")
+        plt.ylabel("Number of people")
+
+    print(
+        "The mean absolute error (MAE) for the Simple Time Series model is {0:.0f} people".format(
+            find_MAE(test, predictions)
         )
+    )
 
 
 def sts_predict_canteen_values(full_df, prediction_df, future=True):
@@ -199,7 +208,7 @@ def test_accuracy(pred_class, binned_test_series):
     return accuracy
 
 
-def find_RMSE(dataset, prediction):
+def find_MAE(dataset, prediction):
     return np.sqrt(np.mean((dataset.iloc[:, 0] - prediction) ** 2))
 
 

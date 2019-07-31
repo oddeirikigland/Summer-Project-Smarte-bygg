@@ -4,9 +4,11 @@ from fbprophet.diagnostics import cross_validation, performance_metrics
 from helpers.helpers import save_model
 from datetime import datetime
 import warnings
+import logging
 
 pd.options.mode.chained_assignment = None  # default='warn'
 warnings.filterwarnings("ignore")
+logging.getLogger("fbprophet").setLevel(logging.WARNING)
 
 
 def prophet(df):
@@ -22,11 +24,11 @@ def prophet(df):
 
     model = create_prophet_model(train)
     forecast = prediction(model, test_period)
-    model.plot(forecast)
+    model.plot(forecast, xlabel="Date", ylabel="Number of people")
     df_cv, df_p = evaluate_model(model)
 
     print(
-        "The mean absolute error (MAE) for the Prophet model is {0:.2f}".format(
+        "The mean absolute error (MAE) for the Prophet model is {0:.0f} people".format(
             df_p["mae"].mean()
         )
     )
