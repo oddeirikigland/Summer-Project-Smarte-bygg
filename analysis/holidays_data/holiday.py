@@ -36,6 +36,18 @@ def calendar_dates_for_year(for_year):
     return pd.DataFrame.from_dict(dates, orient="index")
 
 
+def christmas_period(for_year):
+    # Source: https://stackoverflow.com/questions/7274267/print-all-day-dates-between-two-dates
+    d1 = date(int(for_year), 12, 24)  # start date
+    d2 = date(int(for_year), 12, 31)  # end date
+    delta = d2 - d1  # timedelta
+    dates = {}
+    for i in range(delta.days + 1):
+        dt = d1 + timedelta(days=i)
+        dates[dt] = dt.isocalendar()[1]
+    return dates
+
+
 def create_dataframe(year):
     holidays = get_holiday_for_year(year)
     holidays["description"] = True
@@ -59,12 +71,14 @@ def create_dataframe(year):
     df.loc[df.week == 40, "vacation"] = True
 
     # Fellesferie 3 siste ukene i Juli
-    # Might need to change this assumption?
+    # Assumption
     df.loc[df.week == 28, "vacation"] = True
     df.loc[df.week == 29, "vacation"] = True
     df.loc[df.week == 30, "vacation"] = True
-
     df.loc[df.weekend, "holiday"] = True if True else False
+    for christmas_date in christmas_period(year):
+        if not df.loc[christmas_date]["holiday"]:
+            df.loc[christmas_date, "vacation"] = True
     df = df.drop(["weekend"], axis=1)
     vacations = find_other_vacation_days(df)
     df["inneklemt"] = vacations
@@ -77,26 +91,24 @@ def find_other_vacation_days(df):
     holiday = -10
     i = 0
     vacation_days = []
-    while i < len(holidays) - 2:
+    while i < len(holidays) - 1:
         bool_temp_value = False
         if holidays[i]:
             holiday = i
         else:
             if holiday >= i - 1:
-                if holidays[i + 1] or holidays[i + 2]:
-                    bool_temp_value = True
-            if holiday >= i - 2:
                 if holidays[i + 1]:
                     bool_temp_value = True
         vacation_days.append(bool_temp_value)
         i += 1
     vacation_days.append(True)
-    vacation_days.append(True)
+
     return np.array(vacation_days)
 
 
 def main():
-    create_dataframe(2018)
+    df = create_dataframe(2017)
+    print(df.tail())
 
 
 if __name__ == "__main__":
