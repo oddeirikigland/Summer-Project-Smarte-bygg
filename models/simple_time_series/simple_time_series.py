@@ -6,6 +6,7 @@ from sklearn.naive_bayes import GaussianNB
 from statsmodels.tsa.stattools import adfuller
 from helpers.helpers import save_model
 from datetime import datetime, timedelta
+from constants import DATA_SET_TEST_SIZE
 
 warnings.filterwarnings("ignore")
 
@@ -19,7 +20,6 @@ def simple_time_series(full_df, test_period, display_graphs=True):
     :return: None
     """
     df = full_df.copy()
-    df.index = pd.to_datetime(df.pop("date"))
     df = df.filter(["Canteen"])
 
     train = df.iloc[:-test_period]
@@ -35,17 +35,16 @@ def simple_time_series(full_df, test_period, display_graphs=True):
         plt.xlabel("Time")
         plt.ylabel("Number of people")
 
-    print(
-        "The mean absolute error (MAE) for the Simple Time Series model is {0:.0f} people".format(
-            find_MAE(test, predictions)
+        print(
+            "The mean absolute error (MAE) for the Simple Time Series model is {0:.0f} people".format(
+                find_MAE(test, predictions)
+            )
         )
-    )
 
 
 def sts_predict_canteen_values(full_df, prediction_df, future=True):
     # Returns the predicted values for the prediction_df
     df = full_df.copy()
-    df.index = pd.to_datetime(df.pop("date"))
     df = df.filter(["Canteen"])
     test_period = prediction_df.shape[0]
 
@@ -210,6 +209,12 @@ def test_accuracy(pred_class, binned_test_series):
 
 def find_MAE(dataset, prediction):
     return np.sqrt(np.mean((dataset.iloc[:, 0] - prediction) ** 2))
+
+
+def create_simple_time_series_model(dt_df):
+    simple_time_series(
+        dt_df, int(dt_df.shape[0] * DATA_SET_TEST_SIZE), display_graphs=False
+    )
 
 
 def main():

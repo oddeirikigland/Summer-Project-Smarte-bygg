@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from constants import ROOT_DIR
+from constants import ROOT_DIR, DATA_SET_TEST_SIZE
 
 
 def all_paths_in_dir(path, file_type=".txt"):
@@ -65,7 +65,7 @@ def load_model(filename):
 
 def preprocess(raw_dataset):
     df = raw_dataset.copy()
-    train, test = train_test_split(df, test_size=0.2)
+    train, test = train_test_split(df, test_size=DATA_SET_TEST_SIZE)
     train_dataset, train_labels = split_dataframe(train, ["Canteen"])
     test_dataset, test_labels = split_dataframe(test, ["Canteen"])
     return train_dataset, test_dataset, train_labels, test_labels
@@ -75,7 +75,7 @@ def plot_history(history, epoch):
     hist = pd.DataFrame(history)
     hist["epoch"] = epoch
     plt.xlabel("Epoch")
-    plt.ylabel("Mean Abs Error [MPG]")
+    plt.ylabel("Mean Abs Error [Canteen]")
     plt.plot(hist["epoch"], hist["mean_absolute_error"], label="Train Error")
     plt.plot(hist["epoch"], hist["val_mean_absolute_error"], label="Val Error")
     plt.legend()
@@ -83,7 +83,7 @@ def plot_history(history, epoch):
 
 def plot_history_df(model):
     plt.xlabel("Epoch")
-    plt.ylabel("Mean Abs Error [MPG]")
+    plt.ylabel("Mean Abs Error [Canteen]")
     plt.plot(model["learn"]["MAE"], label="Train Error")
     plt.plot(model["validation"]["MAE"], label="Val Error")
     # plt.ylim([0,5])
@@ -123,3 +123,9 @@ def plot_history_and_prediction_ml(history, epoch, test_prediction):
     plt.subplot(122)
     plot_prediction(test_prediction)
     plt.show()
+
+
+def is_model_saved(filename):
+    return os.path.isfile(
+        "{}/models/saved_models/{}".format(ROOT_DIR, filename)
+    )

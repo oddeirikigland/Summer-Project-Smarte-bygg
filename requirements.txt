@@ -7,7 +7,6 @@ sklearn
 numpy
 scipy
 tensorflow
-talos
 seaborn
 matplotlib
 catboost
