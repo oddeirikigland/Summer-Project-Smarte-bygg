@@ -1,5 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+
+from sklearn.metrics import mean_absolute_error
 
 # All the created prediction models
 from models.prophet.prophet_model import (
@@ -28,6 +31,15 @@ from models.lstm.lstm import (
     predict_future_with_trained_model_file,
     lstm_create_model,
 )
+from helpers.helpers import (
+    plot_history_df,
+    plot_history,
+    load_model_sav,
+    plot_prediction,
+    plot_history_and_prediction_df,
+    plot_history_and_prediction_ml,
+)
+
 from preprocessing.preprocessing import save_dataframes_next_days
 from preprocessing.canteen_tail.canteen_tail import (
     get_correlation_historic_canteen_data,
@@ -36,6 +48,7 @@ from preprocessing.canteen_tail.canteen_tail import (
 from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
+
 
 warnings.filterwarnings("ignore")
 
@@ -78,6 +91,24 @@ def plot_linear(x, y, x_test, y_pred):
     plt.xlabel("Time")
     plt.ylabel("Number of people")
     plt.legend(["Linear regression trend", "Real values"])
+
+
+def print_mae(ml_df, filename, lstm=False):
+    temp_df_models = ml_df.copy()
+    temp_df_models.drop(temp_df_models.tail(8).index, inplace=True)
+
+    real_values = temp_df_models["Canteen"].iloc[:].tail(172)
+
+    if not lstm:
+        model = load_model_sav(filename)
+        mae = mean_absolute_error(
+            np.asarray(model["Canteen"]), np.asarray(model["prediction"])
+        )
+    else:
+        model = np.asarray(load_model_sav(filename))
+        mae = mean_absolute_error(np.asarray(real_values), model)
+
+    print("Testing set Mean Abs Error: {:5.0f} canteen visitors".format(mae))
 
 
 def create_dataframe_for_comparison(full_df, split_period):

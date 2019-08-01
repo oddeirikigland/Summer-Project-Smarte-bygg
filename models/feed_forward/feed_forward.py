@@ -3,16 +3,18 @@ import seaborn as sns
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from sklearn.metrics import mean_absolute_error
 from helpers.helpers import (
     normalize_dataset,
     preprocess,
     save_model,
     plot_history,
-    load_model,
+    load_model_sav,
     is_model_saved,
 )
 from constants import ROOT_DIR
 import warnings
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
@@ -87,6 +89,7 @@ def feed_forward_create_model(ml_df):
     history, model = canteen_model(normed_train_data, train_labels)
 
     test_labels["prediction"] = model.predict(normed_test_data).flatten()
+
     save_model(test_labels, "feed_forward_test_set_prediction")
 
     model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
@@ -106,7 +109,7 @@ def predict_canteen_values(dataset, to_predict):
         model = feed_forward_create_model(ml_df)
     predict_df = to_predict.copy()
     _, normed_predict_df = normalize_dataset(
-        load_model("feed_forward_train_dataset"), predict_df
+        load_model_sav("feed_forward_train_dataset"), predict_df
     )
     predict_df["predicted_value"] = model.predict(normed_predict_df)
     predict_df = predict_df.filter(["date", "predicted_value"])
@@ -121,7 +124,8 @@ def main():
     print(res.head())
 
     plot_history(
-        load_model("feed_forward_history"), load_model("feed_forward_epoch")
+        load_model_sav("feed_forward_history"),
+        load_model_sav("feed_forward_epoch"),
     )
 
 

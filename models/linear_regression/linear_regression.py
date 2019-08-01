@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 import datetime as dt
 from sklearn.metrics import mean_absolute_error, r2_score
-from helpers.helpers import save_model, is_model_saved, load_model
+from helpers.helpers import save_model, is_model_saved, load_model_sav
 from constants import ROOT_DIR, DATA_SET_TEST_SIZE
 
 
