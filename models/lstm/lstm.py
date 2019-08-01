@@ -15,6 +15,13 @@ warnings.filterwarnings("ignore")
 
 
 def build_model(train_dataset, train_labels, local_testing):
+    """
+    Function for building the LSTM model and setting hyperparameters
+    :param train_dataset: numpy array with all necessary variables, does not contain canteen values
+    :param train_labels: the canteen values that is the solution/real values.
+    :param local_testing: bool value, will print training data if set to True.
+    :return: The model that is built and the training history
+    """
     model = Sequential()
     model.add(
         LSTM(5, input_shape=(train_dataset.shape[1], train_dataset.shape[2]))
@@ -53,13 +60,24 @@ def build_model(train_dataset, train_labels, local_testing):
     return model, history
 
 
-def reshape_df(np_array):
-    np_array = np.asarray(np_array)
+def reshape_df(df):
+    """
+    Takes a dataframe and converts it to a numpy array with a certain shape
+    :param df: dataframe
+    :return: a numpy array with shape (?,1,?)
+    """
+    np_array = np.asarray(df)
     np_array = np_array.reshape((np_array.shape[0], 1, np_array.shape[1]))
     return np_array
 
 
 def create_train_dataset(supervised_scaled, test_period):
+    """
+    Splits a dataframe into test and train sets
+    :param supervised_scaled: a dataframe
+    :param test_period: int for setting the test size
+    :return: train_dataset, test_dataset, train_labels, test_labels
+    """
     train = supervised_scaled.iloc[:-test_period]
     test = supervised_scaled.iloc[-test_period:]
 
@@ -75,6 +93,11 @@ def create_train_dataset(supervised_scaled, test_period):
 
 
 def preprocess_data_for_model(df):
+    """
+    Preprocesses a dataframe by scaling the dataframe to be in the range of 0 to 1
+    :param df: a full dataframe
+    :return: scaler for scaling the dataframe back to real values and the scaled supervised dataframe
+    """
     df.fillna(0, inplace=True)
     df.dropna(inplace=True)
     df.inneklemt = df.inneklemt.astype(float)
@@ -123,8 +146,13 @@ def train_lstm(df, test_period, local_testing=False):
     return model, scaler, test_dataset, test_labels, history
 
 
-# Option for using an existing model with MAE score less than 75.
 def load_existing_lstm(df, test_period):
+    """
+    Loads an existing model from a .h5 file
+    :param df: a full dataframe
+    :param test_period: int for setting the test size
+    :return: trained model from file, scaler and test dataset
+    """
     scaler, supervised_scaled = preprocess_data_for_model(df)
 
     _, test_dataset, _, _ = create_train_dataset(
@@ -135,11 +163,17 @@ def load_existing_lstm(df, test_period):
     return model, scaler, test_dataset
 
 
-# Use when predicting with existing data in ml_df.csv, stores model if MAE is less than 75.
-def predict_lstm_with_testset(ml_df, period, local_testing=True):
+def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
+    """
+    LSTM prediction with existing data in ml_df.csv for training the model
+    :param ml_df: a dataframe that is non categorical
+    :param test_period: int for setting the test size
+    :param local_testing: bool value, will print training data if set to True.
+    :return: model history and the predicted values
+    """
     df = ml_df.copy()
     model, scaler, test_dataset, test_labels, history = train_lstm(
-        df, period, local_testing
+        df, test_period, local_testing
     )
 
     # From tutorial https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
@@ -169,6 +203,12 @@ def predict_lstm_with_testset(ml_df, period, local_testing=True):
 
 # Use when predicting for future with dataset that is NOT in ml_df.csv
 def predict_future_with_real_data(ml_df, t_df):
+    """
+    This method should be used for predicting the future (next 8 days).
+    :param ml_df: a dataframe for training the model on.
+    :param t_df: a dataframe with data for the next 8 days filled out. t_df should not contain the same data as ml_df.
+    :return: the predicted values of the model.
+    """
     df = ml_df.copy()
     test_df = t_df.copy()
 
@@ -194,8 +234,14 @@ def predict_future_with_real_data(ml_df, t_df):
 
 
 # Assumes canteen data is not given
-def predict_future_with_trained_model_file(ml_df, dataset):
-    test_dataset = dataset.copy()
+def predict_future_with_trained_model_file(ml_df, t_df):
+    """
+    Used for making predictions on a trained model file
+    :param ml_df: a full dataframe
+    :param t_df: a dataframe with data for the next 8 days filled out. t_df should not contain the same data as ml_df.
+    :return: the predicted values of the model.
+    """
+    test_dataset = t_df.copy()
     df = ml_df.copy()
 
     if "Canteen" not in test_dataset.columns:
