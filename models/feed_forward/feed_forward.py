@@ -90,13 +90,6 @@ def feed_forward_create_model(ml_df):
 
     test_labels["prediction"] = model.predict(normed_test_data).flatten()
 
-    print(
-        mean_absolute_error(
-            np.asarray(test_labels["Canteen"]),
-            np.asarray(test_labels["prediction"]),
-        )
-    )
-
     save_model(test_labels, "feed_forward_test_set_prediction")
 
     model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
