@@ -57,7 +57,7 @@ def save_model(model, filename):
     pickle.dump(model, open(filename, "wb"))
 
 
-def load_model(filename):
+def load_model_sav(filename):
     filename = "{}/models/saved_models/{}.sav".format(ROOT_DIR, filename)
     loaded_model = pickle.load(open(filename, "rb"))
     return loaded_model

@@ -160,6 +160,7 @@ def predict_lstm_with_testset(ml_df, period, local_testing=True):
     model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
     save_model(history.history, "lstm_history")
     save_model(history.epoch, "lstm_epoch")
+    save_model(inv_yhat, "lstm_prediction")
     return history, inv_yhat
 
 
@@ -223,8 +224,9 @@ def lstm_create_model(ml_df):
 
 
 def main():
-    pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
-    # hist, inv = predict_lstm_with_testset(df, 8)
+    df = pd.read_csv("{}/data/ml_df.csv".format(ROOT_DIR), index_col="date")
+    df.drop(df.tail(8).index, inplace=True)
+    hist, inv = predict_lstm_with_testset(df, 172)
     # plot_history(hist)
 
     # predict_future_with_real_data(df)

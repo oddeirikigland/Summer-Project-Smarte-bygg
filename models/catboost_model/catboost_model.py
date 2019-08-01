@@ -4,7 +4,7 @@ from catboost import CatBoostRegressor, Pool
 from helpers.helpers import (
     preprocess,
     save_model,
-    load_model,
+    load_model_sav,
     plot_history_df,
     is_model_saved,
 )
@@ -33,7 +33,7 @@ def preprocess_to_catboost(raw_data):
 
 def catboost_predict_values(dt_df, df_to_predict):
     if is_model_saved("catboost.sav"):
-        model = load_model("catboost")
+        model = load_model_sav("catboost")
     else:
         model = catboost_create_model(dt_df)
 
@@ -73,7 +73,7 @@ def main():
     catboost_create_model(dt_df)
     print(catboost_predict_values(dt_df, dt_df_test))
 
-    model_result = load_model("catboost_evaluation_result")
+    model_result = load_model_sav("catboost_evaluation_result")
     plot_history_df(model_result)
 
 
