@@ -29,6 +29,10 @@ from models.lstm.lstm import (
     lstm_create_model,
 )
 from preprocessing.preprocessing import save_dataframes_next_days
+from preprocessing.canteen_tail.canteen_tail import (
+    get_correlation_historic_canteen_data,
+    get_correlation_historic_canteen_no_weekend,
+)
 from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
@@ -63,6 +67,8 @@ def display_canteen_data():
     plt.figure(figsize=(14, 7))
     plt.plot(df)
     plt.title("Number of people at Telenor Oct 2016 - Feb 2019")
+    plt.xlabel("Time")
+    plt.ylabel("Number of people")
 
 
 def plot_linear(x, y, x_test, y_pred):
@@ -71,7 +77,7 @@ def plot_linear(x, y, x_test, y_pred):
     plt.plot(x_test, y_pred, color="red", linewidth=1)
     plt.xlabel("Time")
     plt.ylabel("Number of people")
-    plt.legend(["Real values", "Linear regression trend"])
+    plt.legend(["Linear regression trend", "Real values"])
 
 
 def create_dataframe_for_comparison(full_df, split_period):
