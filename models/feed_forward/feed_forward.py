@@ -112,7 +112,9 @@ def predict_canteen_values(dataset, to_predict):
         load_model_sav("feed_forward_train_dataset"), predict_df
     )
     predict_df["predicted_value"] = model.predict(normed_predict_df)
+
     predict_df = predict_df.filter(["date", "predicted_value"])
+
     return predict_df
 
 

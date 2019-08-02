@@ -195,13 +195,15 @@ def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
     # calculate Mean Squared error
     # mae = mean_absolute_error(inv_y, inv_yhat)
     # print("Test Mean Absolute Error: %.3f" % mae)
-    model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
-    save_model(history.history, "lstm_history")
-    save_model(history.epoch, "lstm_epoch")
-    save_model(inv_yhat, "lstm_prediction")
+
     pred_df = pd.DataFrame(
         {"prediction": inv_yhat.flatten(), "Canteen": inv_y.flatten()}
     )
+
+    model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
+    save_model(history.history, "lstm_history")
+    save_model(history.epoch, "lstm_epoch")
+
     save_model(pred_df, "lstm_test_set_prediction")
     return history, inv_yhat
 

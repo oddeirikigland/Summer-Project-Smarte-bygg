@@ -49,7 +49,6 @@ from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
 
-
 warnings.filterwarnings("ignore")
 
 
@@ -93,20 +92,14 @@ def plot_linear(x, y, x_test, y_pred):
     plt.legend(["Linear regression trend", "Real values"])
 
 
-def print_mae(ml_df, filename, lstm=False):
+def print_mae(ml_df, filename):
     temp_df_models = ml_df.copy()
     temp_df_models.drop(temp_df_models.tail(8).index, inplace=True)
 
-    real_values = temp_df_models["Canteen"].iloc[:].tail(172)
-
-    if not lstm:
-        model = load_model_sav(filename)
-        mae = mean_absolute_error(
-            np.asarray(model["Canteen"]), np.asarray(model["prediction"])
-        )
-    else:
-        model = np.asarray(load_model_sav(filename))
-        mae = mean_absolute_error(np.asarray(real_values), model)
+    model = load_model_sav(filename)
+    mae = mean_absolute_error(
+        np.asarray(model["Canteen"]), np.asarray(model["prediction"])
+    )
 
     print("Testing set Mean Abs Error: {:5.0f} canteen visitors".format(mae))
 
