@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from preprocessing.decision_tree.decision_tree_preprocessing import (
+from data_preprocessing.decision_tree.decision_tree_preprocessing import (
     get_dataset_with_weekday,
 )
 from constants import ROOT_DIR

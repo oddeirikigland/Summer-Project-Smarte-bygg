@@ -40,15 +40,15 @@ from helpers.helpers import (
     plot_history_and_prediction_ml,
 )
 
-from preprocessing_df.preprocessing import save_dataframes_next_days
-from preprocessing_df.canteen_tail.canteen_tail import (
+from data_preprocessing.preprocessing import save_dataframes_next_days
+from data_preprocessing.canteen_tail.canteen_tail import (
     get_correlation_historic_canteen_data,
     get_correlation_historic_canteen_no_weekend,
 )
-from preprocessing_df.weather.categorize_weather import (
+from data_preprocessing.weather.categorize_weather import (
     get_correlation_weather_canteen,
 )
-from preprocessing_df.weekday_canteen_mean import plot_mean_workers_per_day
+from data_preprocessing.weekday_canteen_mean import plot_mean_workers_per_day
 from analysis.parking_and_canteen import get_correlation_parking_canteen
 from constants import ROOT_DIR, DAYS_TO_TEST
 import warnings
