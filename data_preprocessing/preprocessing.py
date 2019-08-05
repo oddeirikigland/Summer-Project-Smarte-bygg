@@ -1,11 +1,15 @@
 import pandas as pd
 from datetime import datetime, timedelta
-from preprocessing.canteen_tail.canteen_tail import add_canteen_history
-from preprocessing.decision_tree.decision_tree_preprocessing import (
+from data_preprocessing.canteen_tail.canteen_tail import add_canteen_history
+from data_preprocessing.decision_tree.decision_tree_preprocessing import (
     get_dataset_with_weekday,
 )
-from preprocessing.start_of_year.start_of_year import add_diff_from_start_year
-from preprocessing.weather.categorize_weather import categorize_temperature
+from data_preprocessing.start_of_year.start_of_year import (
+    add_diff_from_start_year,
+)
+from data_preprocessing.weather.categorize_weather import (
+    categorize_temperature,
+)
 from analysis.combined_dataset import get_holiday_data
 from analysis.weather_data.weather_forecast import get_weather_forecast
 from analysis.combined_dataset import create_csv

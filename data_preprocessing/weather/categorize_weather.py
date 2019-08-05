@@ -1,7 +1,7 @@
 import pandas as pd
 from constants import ROOT_DIR
 import seaborn as sns
-from preprocessing.decision_tree.decision_tree_preprocessing import (
+from data_preprocessing.decision_tree.decision_tree_preprocessing import (
     get_dataset_with_weekday,
 )
 
