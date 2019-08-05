@@ -1,8 +1,13 @@
 import pandas as pd
 from constants import ROOT_DIR
+import seaborn as sns
+from preprocessing.decision_tree.decision_tree_preprocessing import (
+    get_dataset_with_weekday,
+)
 
 
 def replace_temps_with_avg(df):
+    df = df.copy()
     df["avg_temp"] = df[["max_temp", "min_temp"]].mean(axis=1)
     df.drop(labels=["max_temp", "min_temp"], axis="columns", inplace=True)
     return df
@@ -37,9 +42,48 @@ def categorize_temperature(df):
     return df
 
 
+def get_correlation_weather_canteen(df):
+    # Creating the correct data format, with categorized temperatures and including week days
+    df = categorize_temperature(df)
+    # Mapping the categories to numbers
+    codes = {"preferred_work_temp": 0, "stay_home_temp": 1}
+    df["avg_temp"] = df["avg_temp"].map(codes)
+
+    # Removing holidays
+    df = df.loc[df["holiday"] == 0.0]
+
+    # Renaming columns for aesthetic reasons
+    df = df.copy().rename(
+        columns={
+            "Canteen": "Canteen visitors",
+            "precipitation": "Precipitation",
+            "avg_temp": "Temperature",
+        }
+    )
+
+    # Temperature
+    print(
+        "Correlation between people eating in canteen and temperature: {0:.2f}".format(
+            abs(df["Canteen visitors"].corr(df["Temperature"]))
+        )
+    )
+
+    # Precipitation
+    print(
+        "Correlation between people eating in canteen and precipitation: {0:.2f}".format(
+            abs(df["Canteen visitors"].corr(df["Precipitation"]))
+        )
+    )
+
+    sns.pairplot(
+        df[["Canteen visitors", "Temperature", "Precipitation"]],
+        diag_kind="kde",
+    )
+
+
 def main():
     df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR))
-    categorize_temperature(df)
+    get_correlation_weather_canteen(df)
 
 
 if __name__ == "__main__":
