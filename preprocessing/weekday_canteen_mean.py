@@ -8,10 +8,9 @@ from preprocessing.decision_tree.decision_tree_preprocessing import (
 from constants import ROOT_DIR
 
 
-def plot_mean_workers_per_day():
-    df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR))
+def plot_mean_workers_per_day(df):
     df = df.copy()
-    df.index = pd.to_datetime(df.pop("date"))
+    df.index = pd.to_datetime(df.index)
     df = df.filter(items=["date", "Canteen"])
     df = get_dataset_with_weekday(df)
     mean_dict = {}
@@ -29,7 +28,8 @@ def plot_mean_workers_per_day():
 
 
 def main():
-    plot_mean_workers_per_day()
+    df = pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR))
+    plot_mean_workers_per_day(df)
 
 
 if __name__ == "__main__":
