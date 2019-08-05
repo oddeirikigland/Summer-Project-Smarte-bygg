@@ -90,12 +90,11 @@ def feed_forward_create_model(ml_df):
 
     test_labels["prediction"] = model.predict(normed_test_data).flatten()
 
-    save_model(test_labels, "feed_forward_test_set_prediction")
-
     model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
     save_model(history.history, "feed_forward_history")
     save_model(history.epoch, "feed_forward_epoch")
     save_model(train_dataset, "feed_forward_train_dataset")
+    save_model(test_labels, "feed_forward_test_set_prediction")
     return model
 
 

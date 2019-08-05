@@ -104,15 +104,12 @@ def preprocess_data_for_model(df):
 
     columns = [
         "Canteen",
-        "precipitation",
         "holiday",
         "vacation",
         "inneklemt",
         "canteen_week_ago",
         "canteen_day_ago",
         "dist_start_year",
-        "preferred_work_temp",
-        "stay_home_temp",
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -192,10 +189,6 @@ def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
     inv_y = scaler.inverse_transform(inv_y)
     inv_y = inv_y[:, 0]
 
-    # calculate Mean Squared error
-    # mae = mean_absolute_error(inv_y, inv_yhat)
-    # print("Test Mean Absolute Error: %.3f" % mae)
-
     pred_df = pd.DataFrame(
         {"prediction": inv_yhat.flatten(), "Canteen": inv_y.flatten()}
     )
@@ -205,6 +198,7 @@ def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
     save_model(history.epoch, "lstm_epoch")
 
     save_model(pred_df, "lstm_test_set_prediction")
+
     return history, inv_yhat
 
 
