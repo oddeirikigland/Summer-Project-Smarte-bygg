@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from catboost import CatBoostRegressor, Pool
+from sklearn.metrics import mean_absolute_error
+import numpy as np
 from helpers.helpers import (
     preprocess,
     save_model,
@@ -57,11 +59,12 @@ def catboost_create_model(dt_df):
         iterations=2000, learning_rate=0.05, depth=5, eval_metric="MAE"
     )
     model.fit(train_dataset_combined, eval_set=eval_dataset, verbose=0)
+    test_labels["prediction"] = model.predict(test_dataset).flatten()
+
     save_model(model, "catboost")
     save_model(model.get_evals_result(), "catboost_evaluation_result")
-
-    test_labels["prediction"] = model.predict(test_dataset).flatten()
     save_model(test_labels, "catboost_test_set_prediction")
+
     return model
 
 
