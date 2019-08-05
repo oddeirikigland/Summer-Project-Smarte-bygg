@@ -30,4 +30,7 @@ client_secret = x
 
 ## Usage
 
-All models are stored in [models/saved_models](https://github.com/telenorbusiness/Summer-Project-Smarte-bygg/tree/master/models/saved_models), so it's possible to run our [main jupyter file](https://github.com/telenorbusiness/Summer-Project-Smarte-bygg/blob/master/models/all_models.ipynb) and play around with it. Enjoy!
+If you have the required data files it's possible to run our [main jupyter file](https://github.com/telenorbusiness/Summer-Project-Smarte-bygg/blob/master/models/all_models.ipynb) and play around with it. To update `all_models.html` after editing the main jupyter file, run the following command. 
+```bash
+jupyter nbconvert --to notebook --inplace --execute models/all_models.ipynb && jupyter nbconvert models/all_models.ipynb --TemplateExporter.exclude_input=True --no-prompt --TagRemovePreprocessor.remove_cell_tags='{"remove_markdown"}'
+```
