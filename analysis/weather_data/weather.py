@@ -35,7 +35,6 @@ def get_weather_data(start_time, end_time, config_path):
     if r.status_code == 200:
         data = json["data"]
         print("Data retrieved from frost.met.no!")
-        print(data)
         return clean_data(data)
 
     else:

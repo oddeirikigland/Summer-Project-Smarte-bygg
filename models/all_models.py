@@ -50,7 +50,7 @@ from data_preprocessing.weather.categorize_weather import (
 )
 from data_preprocessing.weekday_canteen_mean import plot_mean_workers_per_day
 from analysis.parking_and_canteen import get_correlation_parking_canteen
-from constants import ROOT_DIR, DAYS_TO_TEST
+from constants import ROOT_DIR, DAYS_TO_TEST, TRAINING_ROUNDS
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -158,8 +158,10 @@ def create_predictions(
     merged = merged.rename(columns={"predicted_value": "Feed Forward"})
     merged = pd.merge(merged, catboost, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Catboost"})
-    merged["LSTM"] = lstm
     merged["STS"] = sts
+
+    merged["LSTM"] = lstm
+
     if not real_canteen.empty:
         merged = pd.merge(
             merged, real_canteen, left_index=True, right_index=True
@@ -199,11 +201,12 @@ def create_and_save_models():
     dt_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
     ml_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
 
-    catboost_create_model(dt_df)
-    feed_forward_create_model(ml_df)
+    for i in range(TRAINING_ROUNDS):
+        catboost_create_model(dt_df)
+        feed_forward_create_model(ml_df)
+        lstm_create_model(ml_df)
     linear_create_model(
         pd.read_csv("{}/data/dataset.csv".format(ROOT_DIR), index_col="date")
     )
-    lstm_create_model(ml_df)
     prophet_create_and_save_model(dt_df)
     create_simple_time_series_model(dt_df)
