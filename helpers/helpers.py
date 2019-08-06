@@ -4,7 +4,6 @@ import pickle
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from constants import ROOT_DIR, DATA_SET_TEST_SIZE
-from constants import DAYS_TO_TEST
 
 
 def all_paths_in_dir(path, file_type=".txt"):

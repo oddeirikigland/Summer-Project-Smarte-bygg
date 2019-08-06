@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 from sklearn.metrics import mean_absolute_error
 
@@ -91,7 +92,7 @@ def plot_linear(x, y, x_test, y_pred):
     plt.figure(figsize=(14, 7))
     plt.scatter(x, y, color="black", s=1)
     plt.plot(x_test, y_pred, color="red", linewidth=1)
-    plt.xlabel("Time")
+    plt.xlabel("Date")
     plt.ylabel("Number of people")
     plt.legend(["Linear regression trend", "Real values"])
 
@@ -159,9 +160,7 @@ def create_predictions(
     merged = pd.merge(merged, catboost, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Catboost"})
     merged["STS"] = sts
-
     merged["LSTM"] = lstm
-
     if not real_canteen.empty:
         merged = pd.merge(
             merged, real_canteen, left_index=True, right_index=True
@@ -201,7 +200,7 @@ def create_and_save_models():
     dt_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
     ml_df.drop(dt_df.tail(DAYS_TO_TEST).index, inplace=True)
 
-    for i in range(TRAINING_ROUNDS):
+    for _ in tqdm(range(TRAINING_ROUNDS)):
         catboost_create_model(dt_df)
         feed_forward_create_model(ml_df)
         lstm_create_model(ml_df)

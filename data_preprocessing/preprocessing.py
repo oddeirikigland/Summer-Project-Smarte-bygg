@@ -97,7 +97,7 @@ def create_and_save_dataframes():
 
 
 def main():
-    get_df_next_days()
+    create_and_save_dataframes()
 
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ def simple_time_series(full_df, test_period, display_graphs=True):
         plt.plot(train)
         plt.plot(resulting_prediction)
         plt.legend(["Real values", "Prediction"], loc="best")
-        plt.xlabel("Time")
+        plt.xlabel("Date")
         plt.ylabel("Number of people")
 
         print(
