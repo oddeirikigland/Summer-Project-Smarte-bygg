@@ -12,6 +12,7 @@ import os
 import warnings
 
 warnings.filterwarnings("ignore")
+LSTM_MAE = 1000
 
 
 def build_model(train_dataset, train_labels, local_testing):
@@ -192,13 +193,17 @@ def predict_lstm_with_testset(ml_df, test_period, local_testing=True):
     pred_df = pd.DataFrame(
         {"prediction": inv_yhat.flatten(), "Canteen": inv_y.flatten()}
     )
-
-    model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
-    save_model(history.history, "lstm_history")
-    save_model(history.epoch, "lstm_epoch")
-
-    save_model(pred_df, "lstm_test_set_prediction")
-
+    mae = mean_absolute_error(
+        np.asarray(pred_df["Canteen"]), np.asarray(pred_df["prediction"])
+    )
+    global LSTM_MAE
+    if mae < LSTM_MAE:
+        model.save("{}/models/saved_models/lstm_model.h5".format(ROOT_DIR))
+        save_model(history.history, "lstm_history")
+        save_model(history.epoch, "lstm_epoch")
+        save_model(pred_df, "lstm_test_set_prediction")
+        LSTM_MAE = mae
+        print("LSTM", str(mae))
     return history, inv_yhat
 
 

@@ -11,7 +11,8 @@ from helpers.helpers import (
     is_model_saved,
 )
 import os
-from constants import ROOT_DIR
+
+CAT_MAE = 1000
 
 
 def preprocess_to_catboost(raw_data):
@@ -26,9 +27,6 @@ def preprocess_to_catboost(raw_data):
             "Saturday": 6,
             "Sunday": 7,
         }
-    )
-    df["avg_temp"] = df["avg_temp"].map(
-        {"stay_home_temp": 1, "preferred_work_temp": 2}
     )
     return df
 
@@ -61,9 +59,17 @@ def catboost_create_model(dt_df):
     model.fit(train_dataset_combined, eval_set=eval_dataset, verbose=0)
     test_labels["prediction"] = model.predict(test_dataset).flatten()
 
-    save_model(model, "catboost")
-    save_model(model.get_evals_result(), "catboost_evaluation_result")
-    save_model(test_labels, "catboost_test_set_prediction")
+    mae = mean_absolute_error(
+        np.asarray(test_labels["Canteen"]),
+        np.asarray(test_labels["prediction"]),
+    )
+    global CAT_MAE
+    if mae < CAT_MAE:
+        save_model(model, "catboost")
+        save_model(model.get_evals_result(), "catboost_evaluation_result")
+        save_model(test_labels, "catboost_test_set_prediction")
+        CAT_MAE = mae
+        print("CAT", str(mae))
 
     return model
 

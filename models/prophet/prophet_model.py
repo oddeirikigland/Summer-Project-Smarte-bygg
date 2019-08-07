@@ -1,7 +1,7 @@
 import pandas as pd
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation, performance_metrics
-from helpers.helpers import save_model
+from helpers.helpers import save_model, is_model_saved, load_model_sav
 from datetime import datetime
 import warnings
 import logging
@@ -22,7 +22,10 @@ def prophet(df):
     test_period = 8
     train = df.iloc[:-test_period]
 
-    model = create_prophet_model(train)
+    if is_model_saved("prophet.sav"):
+        model = load_model_sav("prophet")
+    else:
+        model = create_prophet_model(train)
     forecast = prediction(model, test_period)
     model.plot(forecast, xlabel="Date", ylabel="Number of people")
     df_cv, df_p = evaluate_model(model)

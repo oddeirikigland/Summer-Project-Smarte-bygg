@@ -7,14 +7,10 @@ from data_preprocessing.decision_tree.decision_tree_preprocessing import (
 from data_preprocessing.start_of_year.start_of_year import (
     add_diff_from_start_year,
 )
-from data_preprocessing.weather.categorize_weather import (
-    categorize_temperature,
-)
 from analysis.combined_dataset import get_holiday_data
-from analysis.weather_data.weather_forecast import get_weather_forecast
 from analysis.combined_dataset import create_csv
 from helpers.helpers import map_bool_to_int
-from constants import ROOT_DIR
+from constants import ROOT_DIR, DAYS_TO_TEST
 
 
 def from_intervall_to_col(df, new_col, old_col):
@@ -26,28 +22,26 @@ def from_intervall_to_col(df, new_col, old_col):
 
 def get_df_next_days():
     date_today = datetime.now()
-    from_date = (date_today + timedelta(1)).date()
-    to_date = (date_today + timedelta(7)).date()
+    from_date = date_today.date()
+    to_date = (date_today + timedelta(DAYS_TO_TEST)).date()
 
-    weather = get_weather_forecast()
     holiday = get_holiday_data(from_date, to_date)
-    merged = pd.merge(
-        weather, holiday, left_index=True, right_index=True, how="left"
-    )
-    merged["Canteen"] = -1
-    map_bool_to_int(merged, "holiday")
-    map_bool_to_int(merged, "vacation")
-    map_bool_to_int(merged, "inneklemt")
-    merged.index.name = "date"
-    return merged
+
+    mask = (holiday.index >= from_date) & (holiday.index <= to_date)
+
+    holiday = holiday.loc[mask]
+    holiday["Canteen"] = -1
+    map_bool_to_int(holiday, "holiday")
+    map_bool_to_int(holiday, "vacation")
+    map_bool_to_int(holiday, "inneklemt")
+    holiday.index.name = "date"
+    return holiday
 
 
 def preprocess_data(df):
     df = add_canteen_history(df)
     df = get_dataset_with_weekday(df)
     df = add_diff_from_start_year(df)
-    df = categorize_temperature(df)
-    df["precipitation"] = df["precipitation"].div(df["precipitation"].max())
     df["canteen_week_ago"] = df["canteen_week_ago"].div(
         df["canteen_week_ago"].max()
     )
@@ -58,9 +52,6 @@ def preprocess_data(df):
 
 
 def preprocess_for_ml(df):
-    from_intervall_to_col(df, "preferred_work_temp", "avg_temp")
-    from_intervall_to_col(df, "stay_home_temp", "avg_temp")
-
     from_intervall_to_col(df, "Monday", "weekday")
     from_intervall_to_col(df, "Tuesday", "weekday")
     from_intervall_to_col(df, "Wednesday", "weekday")
@@ -69,7 +60,7 @@ def preprocess_for_ml(df):
     from_intervall_to_col(df, "Saturday", "weekday")
     from_intervall_to_col(df, "Sunday", "weekday")
 
-    df = df.drop(["avg_temp", "weekday"], axis=1)
+    df = df.drop(["weekday"], axis=1)
     return df
 
 
@@ -92,7 +83,9 @@ def create_and_save_dataframes():
     dataframe = pd.read_csv(
         "{}/data/dataset.csv".format(ROOT_DIR), index_col="date"
     )
-
+    dataframe = dataframe.drop(
+        ["max_temp", "min_temp", "precipitation"], axis=1
+    )
     df = dataframe.copy()
     decision_tree_df = preprocess_data(df)
     ml_df = preprocess_for_ml(decision_tree_df.copy())

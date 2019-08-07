@@ -17,6 +17,7 @@ import warnings
 import numpy as np
 
 warnings.filterwarnings("ignore")
+FEED_MAE = 1000
 
 
 class PrintDot(keras.callbacks.Callback):
@@ -90,11 +91,21 @@ def feed_forward_create_model(ml_df):
 
     test_labels["prediction"] = model.predict(normed_test_data).flatten()
 
-    model.save("{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR))
-    save_model(history.history, "feed_forward_history")
-    save_model(history.epoch, "feed_forward_epoch")
-    save_model(train_dataset, "feed_forward_train_dataset")
-    save_model(test_labels, "feed_forward_test_set_prediction")
+    mae = mean_absolute_error(
+        np.asarray(test_labels["Canteen"]),
+        np.asarray(test_labels["prediction"]),
+    )
+    global FEED_MAE
+    if mae < FEED_MAE:
+        save_model(history.history, "feed_forward_history")
+        save_model(history.epoch, "feed_forward_epoch")
+        save_model(train_dataset, "feed_forward_train_dataset")
+        save_model(test_labels, "feed_forward_test_set_prediction")
+        model.save(
+            "{}/models/saved_models/feed_forward_model.h5".format(ROOT_DIR)
+        )
+        FEED_MAE = mae
+        print("FEED", str(mae))
     return model
 
 
