@@ -53,11 +53,21 @@ def normalize_dataset(train_dataset, test_dataset):
 
 
 def save_model(model, filename):
+    """
+    Should save sav file to a specified path
+    :param model: model/feature of which to save
+    :param filename: name of file to be saved
+    """
     filename = "{}/models/saved_models/{}.sav".format(ROOT_DIR, filename)
     pickle.dump(model, open(filename, "wb"))
 
 
 def load_model_sav(filename):
+    """
+    Loads a sav file from a specified path
+    :param filename: filename of file to load
+    :return: loaded file
+    """
     filename = "{}/models/saved_models/{}.sav".format(ROOT_DIR, filename)
     loaded_model = pickle.load(open(filename, "rb"))
     return loaded_model

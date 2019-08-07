@@ -6,6 +6,11 @@ import numpy as np
 
 
 def get_holiday_for_year(year):
+    """
+    Get all norwegian holidays for a given year
+    :param year: int, year for holidays
+    :return: dataframe with holiday information
+    """
     response = requests.get("https://webapi.no/api/v1/holidays/" + str(year))
 
     # Check if the request worked, print out any errors
@@ -22,6 +27,11 @@ def get_holiday_for_year(year):
 
 
 def calendar_dates_for_year(for_year):
+    """
+    Gets all dates and weekends for a year to use in dataframe as index.
+    :param for_year: int, year you want dates from
+    :return: dataframe with year as index and weekends.
+    """
     # Source: https://stackoverflow.com/questions/7274267/print-all-day-dates-between-two-dates
     d1 = date(int(for_year), 1, 1)  # start date
     d2 = date(int(for_year), 12, 31)  # end date
@@ -37,6 +47,13 @@ def calendar_dates_for_year(for_year):
 
 
 def christmas_period(for_year):
+    """
+    Used for christmas period as we want to set this time as vacation. This is because
+        some dates are neither holiday nor 'inneklemt', so it is natural to set these days
+        as vacation
+    :param for_year: int, year you want dates from
+    :return: returns all christmas dates
+    """
     # Source: https://stackoverflow.com/questions/7274267/print-all-day-dates-between-two-dates
     d1 = date(int(for_year), 12, 24)  # start date
     d2 = date(int(for_year), 12, 31)  # end date
@@ -49,6 +66,11 @@ def christmas_period(for_year):
 
 
 def create_dataframe(year):
+    """
+    Should create a dataframe with all information (vacation, holidays and 'inneklemt')
+    :param year: int, year for which the dataframe should be created
+    :return:
+    """
     holidays = get_holiday_for_year(year)
     holidays["description"] = True
 
@@ -87,6 +109,12 @@ def create_dataframe(year):
 
 
 def find_other_vacation_days(df):
+    """
+    Algorithm for finding an 'inneklemt dag'. Which is defined as a working day between two free days
+        (holiday or weekend).
+    :param df: a dataframe with vacations, holidays and weekends as columns
+    :return: array of True/False that matches the length of the dataframe given as input
+    """
     holidays = df["holiday"].to_numpy()
     holiday = -10
     i = 0

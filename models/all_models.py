@@ -98,6 +98,11 @@ def plot_linear(x, y, x_test, y_pred):
 
 
 def print_mae(ml_df, filename):
+    """
+    Print MAE of a stored model
+    :param ml_df: dataframe for machine learning problems
+    :param filename: name of file to load
+    """
     temp_df_models = ml_df.copy()
     temp_df_models.drop(temp_df_models.tail(8).index, inplace=True)
 
@@ -159,8 +164,8 @@ def create_predictions(
     merged = merged.rename(columns={"predicted_value": "Feed Forward"})
     merged = pd.merge(merged, catboost, left_index=True, right_index=True)
     merged = merged.rename(columns={"predicted_value": "Catboost"})
-    merged["STS"] = sts
     merged["LSTM"] = lstm
+    merged["STS"] = sts
     if not real_canteen.empty:
         merged = pd.merge(
             merged, real_canteen, left_index=True, right_index=True
