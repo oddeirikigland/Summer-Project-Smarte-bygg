@@ -3,6 +3,12 @@ from helpers.helpers import all_paths_in_dir
 
 
 def clean_kdr_data(path, file_type):
+    """
+    Should clean the kdr canteen data and make it ready for use.
+    :param path: string of where to find the kdr data files
+    :param file_type: string of which file types to locate
+    :return: a final preprocessed dataframe
+    """
     kdr_files = all_paths_in_dir(path, file_type)
 
     all_frames = []
@@ -27,15 +33,14 @@ def clean_kdr_data(path, file_type):
     return final_frame
 
 
-def amount_location(path, file_type):
-    final_frame = clean_kdr_data(path, file_type)
-    amount_per_date = final_frame.groupby(["Date", "Place"])["Place"].count()
-    amount_per_date = amount_per_date.to_frame()
-    amount_per_date.columns = ["Freq"]
-    return amount_per_date
-
-
 def amount_total(path, file_type):
+    """
+    Should make a dataframe with outlier data removed and frequency of
+        how often the canteen is used with date as index
+    :param path: string of where to find the kdr data files
+    :param file_type: string of which file types to locate
+    :return: dataframe with frequency of canteen visitors and date as index
+    """
     final_frame = clean_kdr_data(path, file_type)
     amount_work = final_frame.groupby("Date")["Place"].count()
     amount_work = amount_work.to_frame()

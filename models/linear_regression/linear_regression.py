@@ -9,6 +9,11 @@ from constants import ROOT_DIR, DATA_SET_TEST_SIZE
 
 
 def linear_create_model(df):
+    """
+    Creates model and saves the model to a sav file.
+    :param df: dataframe with canteen and date
+    :return: model, x, y and test data set
+    """
     dataframe = pd.DataFrame(df.index)
     dataframe["Canteen"] = df["Canteen"].values
     dataframe["date"] = pd.to_datetime(dataframe["date"])
@@ -26,6 +31,11 @@ def linear_create_model(df):
 
 
 def linear(df):
+    """
+    Calculate MAE and predict future values
+    :param df: dataframe with canteen and date
+    :return: x, y, predicted y values, x from test set and y from test set.
+    """
     model, x, y, test = linear_create_model(df)
     # Changing ordinal dates to regular dates
     x = [dt.datetime.fromordinal(*el).date() for el in x]
